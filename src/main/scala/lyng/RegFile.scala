@@ -29,8 +29,3 @@ class RegFile extends Module {
   }
 
 }
-
-object RegFileMain extends App {
-  println("Generating hardware")
-  (new chisel3.stage.ChiselStage).emitVerilog(new RegFile(), Array("--target-dir", "generated"))
-}
