@@ -5,10 +5,9 @@
  *
  */
 
-package lyng
+package lyng.execute
 
 import chisel3._
-import chisel3.util._
 
 // TODO: Fix and put opcodes in shared file
 // TODO: Share SUB and ADD circuit since they never run at the same time
@@ -44,7 +43,7 @@ class ALU extends Module {
   } .elsewhen(io.alu_opcode === 2.U) { // SUB/SUBI TODO: Share with ADD
     s_alu_out := s_alu_in1 - s_alu_in2
     carry := !s_alu_out(16) & s_alu_in1(15) & s_alu_in2(15)
-  } .elsewhen(io.alu_opcode === 2.U) { // SBB
+  } .elsewhen(io.alu_opcode === 3.U) { // SBB
     when(carry===1.U) { // TODO: Share with SUB
       s_alu_out := s_alu_in1 + s_alu_in2 - 1.S
     } .otherwise {

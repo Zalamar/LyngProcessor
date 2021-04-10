@@ -9,6 +9,7 @@ package lyng
 
 import chisel3._
 import chisel3.iotesters.PeekPokeTester
+import lyng.execute.ALU
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.util.Random
