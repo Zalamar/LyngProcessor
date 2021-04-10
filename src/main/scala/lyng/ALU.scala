@@ -60,7 +60,7 @@ class ALU extends Module {
   } .elsewhen(io.alu_opcode === 6.U) { // NOT
     s_alu_out := ~s_alu_in1
   } .elsewhen(io.alu_opcode === 7.U) { // SHIFTL
-    s_alu_out := s_alu_in1 << 1
+    s_alu_out := s_alu_in1 << 1 // TODO: Variable shift amount
   } .elsewhen(io.alu_opcode === 8.U) { // SHIFTR
     s_alu_out := s_alu_in1 >> 1
   } .elsewhen(io.alu_opcode === 9.U) { // Pass Rs1
