@@ -65,9 +65,7 @@ class ALU extends Module {
     s_alu_out := s_alu_in1 >> 1
   } .elsewhen(io.alu_opcode === 9.U) { // Pass Rs1
     s_alu_out := s_alu_in1 // This can be turn into an ADD with a register tied to 0
-  } .elsewhen(io.alu_opcode === 10.U) { // MVIH/MVIH
-    s_alu_out := s_alu_in1 // This can be turn into an ADD with a register tied to 0
-  } .otherwise {
+  } .otherwise { // Carry
     carry := 1.U
   }
 
