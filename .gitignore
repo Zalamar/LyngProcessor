@@ -23,7 +23,12 @@ project/plugins/project/
 
 
 ## Chisel ##
-generated/
-quartus/
+generated/*
+quartus/*
+.metals/*
+test_run_dir/*
+
+.vscode/*
+
 
 # End of https://www.toptal.com/developers/gitignore/api/scala,sbt
