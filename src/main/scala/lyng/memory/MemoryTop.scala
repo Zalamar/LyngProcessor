@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 
 
-class MemoryStage extends Module {
+class MemoryTop extends Module {
     val io = IO(new Bundle {
         //Input from EX/ME
         val in_jump = Input(UInt(1.W))
