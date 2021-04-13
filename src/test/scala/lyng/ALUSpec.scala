@@ -16,7 +16,7 @@ import scala.util.Random
 
 class ALUTester(dut: ALU) extends PeekPokeTester(dut) {
 
-  val testSize = 100
+  val testSize = 20
   val r = new Random()
   val start = -32768
   val end = 32767
@@ -32,7 +32,7 @@ class ALUTester(dut: ALU) extends PeekPokeTester(dut) {
 
     poke(dut.io.alu_in1, a)
     poke(dut.io.alu_in2, b)
-    poke(dut.io.alu_opcode, 0)
+    poke(dut.io.alu_opcode, 2)
     step(1)
     result = a+b
     if (result > 32767) {result = result - 65536}
@@ -66,8 +66,8 @@ class ALUTester(dut: ALU) extends PeekPokeTester(dut) {
 
     poke(dut.io.alu_in1, a)
     poke(dut.io.alu_in2, b)
-    poke(dut.io.alu_opcode, 2)
-    step(1)
+    poke(dut.io.alu_opcode, 4)
+    step(4)
     result = a-b
     if (result > 32767) {result = result - 65536}
     else if (result < -32768) {result = result + 65536}
@@ -83,7 +83,7 @@ class ALUTester(dut: ALU) extends PeekPokeTester(dut) {
 
     poke(dut.io.alu_in1, a)
     poke(dut.io.alu_in2, b)
-    poke(dut.io.alu_opcode, 3)
+    poke(dut.io.alu_opcode, 8)
     step(1)
     result = a&b
     expect(dut.io.alu_out, result)
@@ -96,7 +96,7 @@ class ALUTester(dut: ALU) extends PeekPokeTester(dut) {
 
     poke(dut.io.alu_in1, a)
     poke(dut.io.alu_in2, b)
-    poke(dut.io.alu_opcode, 4)
+    poke(dut.io.alu_opcode, 9)
     step(1)
     result = a|b
     expect(dut.io.alu_out, result)
@@ -109,7 +109,7 @@ class ALUTester(dut: ALU) extends PeekPokeTester(dut) {
 
     poke(dut.io.alu_in1, a)
     poke(dut.io.alu_in2, b)
-    poke(dut.io.alu_opcode, 5)
+    poke(dut.io.alu_opcode, 10)
     step(1)
     result = a^b
     expect(dut.io.alu_out, result)
@@ -120,7 +120,7 @@ class ALUTester(dut: ALU) extends PeekPokeTester(dut) {
     a = start + r.nextInt((end - start) + 1)
 
     poke(dut.io.alu_in1, a)
-    poke(dut.io.alu_opcode, 6)
+    poke(dut.io.alu_opcode, 11)
     step(1)
     result = ~a
     expect(dut.io.alu_out, result)
@@ -128,34 +128,37 @@ class ALUTester(dut: ALU) extends PeekPokeTester(dut) {
 
   // SHIFTL
   for (i <- 1 to testSize) {
-    a = start + r.nextInt((end - start) + 1)
+    a = 1 //start + r.nextInt((end - start) + 1)
+    b = r.nextInt(15)
 
     poke(dut.io.alu_in1, a)
-    poke(dut.io.alu_opcode, 7)
+    poke(dut.io.alu_in1, b)
+    poke(dut.io.alu_opcode, 12)
     step(1)
-    result = a << 1
-    if (result > 32767) {result = result - 65536}
-    else if (result < -32768) {result = result + 65536}
-    expect(dut.io.alu_out, result)
+    result = a << b
+    print("Test:", b, ";", result, ";")
+    expect(dut.io.alu_out, result.toShort)
   }
 
   // SHIFTR
   for (i <- 1 to testSize) {
-    a = start + r.nextInt((end - start) + 1)
+    a = 1 //start + r.nextInt((end - start) + 1)
+    b = r.nextInt(15)
 
     poke(dut.io.alu_in1, a)
-    poke(dut.io.alu_opcode, 8)
+    poke(dut.io.alu_in1, b)
+    poke(dut.io.alu_opcode, 13)
     step(1)
-    result = a >> 1
+    result = a >> b
     expect(dut.io.alu_out, result)
   }
 
-  // Pass Rs1
+  // MVIH/MVIL
   for (i <- 1 to testSize) {
     a = start + r.nextInt((end - start) + 1)
 
-    poke(dut.io.alu_in1, a)
-    poke(dut.io.alu_opcode, 9)
+    poke(dut.io.alu_in2, a)
+    poke(dut.io.alu_opcode, 14)
     step(1)
     result = a
     expect(dut.io.alu_out, result)

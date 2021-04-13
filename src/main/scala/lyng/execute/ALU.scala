@@ -16,9 +16,11 @@ class ALU extends Module {
   val io = IO(new Bundle {
     val alu_in1 = Input(SInt(16.W))
     val alu_in2 = Input(SInt(16.W))
-    val alu_opcode = Input(Bits(5.W))
+    val alu_opcode = Input(Bits(4.W))
     val alu_out = Output(SInt(16.W))
     val carry_out = Output(UInt())
+    val gez = Output(Bits(1.W))
+    val zero = Output(Bits(1.W))
   })
 
   val carry = RegInit(0.U(1.W))
@@ -29,43 +31,43 @@ class ALU extends Module {
   val s_alu_out = Wire(SInt(17.W))
   io.alu_out := s_alu_out
   s_alu_out := 0.S
+  io.gez := io.alu_in1 > io.alu_in2
+  io.zero := io.alu_in1 === io.alu_in2
 
-  when(io.alu_opcode === 0.U) { // ADD/ADDI
+  when(io.alu_opcode === 2.U) { // ADD/ADDI
     s_alu_out := s_alu_in1 + s_alu_in2
     carry := !s_alu_out(16) & s_alu_in1(15) & s_alu_in2(15)
-  } .elsewhen(io.alu_opcode === 1.U) { // ADC
+  } .elsewhen(io.alu_opcode === 3.U) { // ADC
     when(carry===1.U) { // TODO: Share with SUB
       s_alu_out := s_alu_in1 + s_alu_in2 + 1.S
     } .otherwise {
       s_alu_out := s_alu_in1 + s_alu_in2
     }
     carry := !s_alu_out(16) & s_alu_in1(15) & s_alu_in2(15)
-  } .elsewhen(io.alu_opcode === 2.U) { // SUB/SUBI TODO: Share with ADD
+  } .elsewhen(io.alu_opcode === 4.U) { // SUB/SUBI TODO: Share with ADD
     s_alu_out := s_alu_in1 - s_alu_in2
     carry := !s_alu_out(16) & s_alu_in1(15) & s_alu_in2(15)
-  } .elsewhen(io.alu_opcode === 3.U) { // SBB
+  } .elsewhen(io.alu_opcode === 5.U) { // SBB
     when(carry===1.U) { // TODO: Share with SUB
       s_alu_out := s_alu_in1 + s_alu_in2 - 1.S
     } .otherwise {
       s_alu_out := s_alu_in1 + s_alu_in2
     }
     carry := !s_alu_out(16) & s_alu_in1(15) & s_alu_in2(15)
-  } .elsewhen(io.alu_opcode === 3.U) { // AND
+  } .elsewhen(io.alu_opcode === 8.U) { // AND
     s_alu_out := s_alu_in1 & s_alu_in2
-  } .elsewhen(io.alu_opcode === 4.U) { // OR
+  } .elsewhen(io.alu_opcode === 9.U) { // OR
     s_alu_out := s_alu_in1 | s_alu_in2
-  } .elsewhen(io.alu_opcode === 5.U) { // XOR
+  } .elsewhen(io.alu_opcode === 10.U) { // XOR
     s_alu_out := s_alu_in1 ^ s_alu_in2
-  } .elsewhen(io.alu_opcode === 6.U) { // NOT
+  } .elsewhen(io.alu_opcode === 11.U) { // NOT
     s_alu_out := ~s_alu_in1
-  } .elsewhen(io.alu_opcode === 7.U) { // SHIFTL
-    s_alu_out := s_alu_in1 << 1 // TODO: Variable shift amount
-  } .elsewhen(io.alu_opcode === 8.U) { // SHIFTR
-    s_alu_out := s_alu_in1 >> 1
-  } .elsewhen(io.alu_opcode === 9.U) { // Pass Rs1
-    s_alu_out := s_alu_in1 // This can be turn into an ADD with a register tied to 0
-  } .otherwise { // Carry
-    carry := 1.U
+  } .elsewhen(io.alu_opcode === 12.U) { // SHIFTL
+    s_alu_out := (s_alu_in1.asUInt() << s_alu_in2.asUInt()).asSInt()
+  } .elsewhen(io.alu_opcode === 13.U) { // SHIFTR
+    s_alu_out := (s_alu_in1.asUInt() >> s_alu_in2.asUInt()).asSInt()
+  } .elsewhen(io.alu_opcode === 14.U) { // MVIH/MVIL
+    s_alu_out := s_alu_in2
   }
 
 }
