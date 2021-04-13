@@ -3,8 +3,6 @@ package lyng.decode
 import chisel3._
 import chisel3.iotesters.PeekPokeTester
 import org.scalatest._
-import lyng.decode.RegFile
-
 // test class
 class RegFileTester(dut: RegFile) extends PeekPokeTester(dut) {
     // TEST 1 - write and read later, all regs

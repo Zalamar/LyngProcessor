@@ -38,7 +38,7 @@ class MemoryStage extends Module {
         val data_ready_out = Output(UInt(1.W))
     })
 
-    val memory = Module(new Memory(16, 16))
+    val memory = Module(new Memory(16, 8, false))
 
     // Stack Pointer
     val stack_pointer = Reg(UInt(16.W)) //TODO Init to 0xFFFF
@@ -88,7 +88,7 @@ class MemoryStage extends Module {
     mem_data_in_no_prop := Mux(io.mem_data_src === true.B, io.in_PC >> 1, io.in_RD)
     memory.io.data_in := Mux(io.prop_ME_ME === true.B, io.in_rw_value.asUInt, mem_data_in_no_prop)
     io.out_data_out := memory.io.data_out
-    io.data_ready_out := memory.io.ready
+    io.data_ready_out := memory.io.valid
 }
 
 object MemStageMain extends App {
