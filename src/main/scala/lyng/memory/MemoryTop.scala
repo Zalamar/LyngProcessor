@@ -1,44 +1,50 @@
-package lyng
+package lyng.memory
 
+import lyng.Memory
+import lyng.ControlUnitOut
 import chisel3._
 import chisel3.util._
 
-
-class MemoryTop extends Module {
-    val io = IO(new Bundle {
+class MemoryStageIn extends Bundle {
         //Input from EX/ME
-        val in_jump = Input(UInt(1.W))
-        val in_jump_amt = Input(UInt(17.W))
-        val in_alu_res = Input(UInt(16.W))
-        val in_PC = Input(UInt(17.W))
-        val in_RD = Input(UInt(16.W))
-        val in_rw_addr = Input(UInt(3.W))
-        //Control Signals (from EX/ME)
-        val stack_op = Input(UInt(2.W))
-        val mem_data_src = Input(UInt(1.W))
-        val mem_addr_src = Input(UInt(1.W))
-        val mem_read = Input(UInt(1.W))
-        val mem_write = Input(UInt(1.W))
+        val jump = Input(UInt(1.W))
+        val jump_amt = Input(UInt(17.W))
+        val alu_res = Input(UInt(16.W))
+        val pc = Input(UInt(17.W))
+        val rd = Input(UInt(16.W))
+        val rw_addr = Input(UInt(3.W))
         //Controls from propagation
         val prop_ME_ME = Input(UInt(1.W))
         //Propagation values
-        val in_rw_value = Input(UInt(16.W))
+        val rw_value = Input(UInt(16.W))
+}
 
-        //Outputs to ME/WB
-        val out_data_out = Output(UInt(16.W))
-        val out_alu_res = Output(UInt(16.W))
-        val out_rw_addr = Output(UInt(3.W))
 
-        //Outputs to PC
-        val out_return_addr = Output(UInt(17.W))
-        val out_call = Output(UInt(17.W))
-        val out_jump = Output(UInt(17.W))
+class MemoryStageOut extends Bundle {
+    //Outputs to ME/WB
+    val data_out = Output(UInt(16.W))
+    val alu_res = Output(UInt(16.W))
+    val rw_addr = Output(UInt(3.W))
 
-        //Outputs to stall unit
-        val data_ready_out = Output(UInt(1.W))
+    //Outputs to PC
+    val return_addr = Output(UInt(17.W))
+    val call = Output(UInt(17.W))
+    val jump = Output(UInt(17.W))
+
+    //Outputs to stall unit
+    val data_valid = Output(UInt(1.W))    
+}
+
+class MemoryTop extends Module {
+    val io = IO(new Bundle {
+
+        val ctrl = Flipped(new ControlUnitOut)
+
+        val in = new MemoryStageIn
+        val out = new MemoryStageOut
     })
 
-    val memory = Module(new Memory(16, 8, false))
+    val memory = Module(new Memory(16, 8, true))
 
     // Stack Pointer
     val stack_pointer = Reg(UInt(16.W)) //TODO Init to 0xFFFF
@@ -49,24 +55,24 @@ class MemoryTop extends Module {
     
 
     //Outputs to PC calc unit    
-    io.out_call := (io.in_PC.asSInt + io.in_jump_amt.asSInt).asUInt
-    io.out_jump := io.in_RD << 1
-    io.out_return_addr := memory.io.data_out << 1
+    io.out.call := io.in.rd << 1
+    io.out.jump := (io.in.pc.asSInt + io.in.jump_amt.asSInt).asUInt
+    io.out.return_addr := memory.io.data_out << 1
 
     //Other Signals
-    io.out_alu_res := io.in_alu_res
-    io.out_rw_addr := io.in_rw_addr
+    io.out.alu_res := io.in.alu_res
+    io.out.rw_addr := io.in.rw_addr
 
     sp_out := stack_pointer
 
     //Stack unit
-    switch(io.stack_op) {
+    switch(io.ctrl.stack_op) {
         is("b00".U) { //No-Stack OP
             sp_out := stack_pointer
             stack_pointer := sp_out
         }
         is("b01".U) { //MOVSP
-            stack_pointer := io.in_RD
+            stack_pointer := io.in.rd
             sp_out := stack_pointer
         }
         is("b10".U) { //PUSH
@@ -82,16 +88,12 @@ class MemoryTop extends Module {
 
     
     //Memory 
-    memory.io.mem_write := io.mem_write
-    memory.io.mem_read := io.mem_read
-    memory.io.addr := Mux(io.mem_addr_src === true.B, sp_out, io.in_alu_res.asUInt)
-    mem_data_in_no_prop := Mux(io.mem_data_src === true.B, io.in_PC >> 1, io.in_RD)
-    memory.io.data_in := Mux(io.prop_ME_ME === true.B, io.in_rw_value.asUInt, mem_data_in_no_prop)
-    io.out_data_out := memory.io.data_out
-    io.data_ready_out := memory.io.valid
+    memory.io.mem_write := io.ctrl.mem_write
+    memory.io.mem_read := io.ctrl.mem_read
+    memory.io.addr := Mux(io.ctrl.mem_addr_src === 1.U, sp_out, io.in.alu_res.asUInt)
+    mem_data_in_no_prop := Mux(io.ctrl.mem_data_src === 1.U, io.in.pc >> 1, io.in.rd)
+    memory.io.data_in := Mux(io.in.prop_ME_ME === 1.U, io.in.rw_value.asUInt, mem_data_in_no_prop)
+    io.out.data_out := memory.io.data_out
+    io.out.data_valid := memory.io.valid
 }
 
-object MemStageMain extends App {
-  println("Generating MEM Stage")
-  (new chisel3.stage.ChiselStage).emitVerilog(new MemoryStage(), Array("--target-dir", "generated"))
-}

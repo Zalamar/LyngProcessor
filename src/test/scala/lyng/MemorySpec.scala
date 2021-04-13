@@ -51,6 +51,7 @@ class MemoryTester(dut: Memory) extends PeekPokeTester(dut) {
     }
 }
 
+
 // test spec
 class MemorySpec extends FlatSpec with Matchers {
   "Tester" should "pass" in {
