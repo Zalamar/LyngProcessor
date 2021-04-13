@@ -17,8 +17,6 @@ class execute_top extends Module{
     val alu_src = Input(Bits(1.W))
     val ext_mode = Input(Bits(3.W))
     val alu_op = Input(Bits(4.W))
-    val carry_write = Input(Bits(3.W))
-    val jmp_cond = Input(Bits(3.W))
     val jmp_mode = Input(Bits(3.W))
     // Outputs
     val jump = Output(Bits(1.W))
@@ -29,7 +27,7 @@ class execute_top extends Module{
   val ALU = Module(new ALU())
   val extender = Module(new extender())
 
-  //ALU.io.alu_opcode :=
+  ALU.io.alu_opcode := io.alu_op
 
   extender.io.immediate_in := io.immediate
   extender.io.ext_mode := io.ext_mode
