@@ -2,6 +2,7 @@ package lyng.decode
 
 import chisel3._
 import chisel3.util._
+import lyng.ControlUnitOut
 
 class DecodeTop extends Module {
     val io = IO(new Bundle {
@@ -13,7 +14,7 @@ class DecodeTop extends Module {
         val in_wb_reg_write = Input(UInt(1.W))
         // outputs to ID/EX reg
         val out_rd_addr = Output(UInt(3.W))
-        val out_control = Output(new ControlUnitSig)
+        val out_control = Output(new ControlUnitOut)
         val out_rs1 = Output(UInt(16.W))
         val out_rs2 = Output(UInt(16.W))
         val out_rd = Output(UInt(16.W))
