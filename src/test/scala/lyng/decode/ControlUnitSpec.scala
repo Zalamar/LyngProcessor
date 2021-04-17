@@ -6,7 +6,9 @@ import org.scalatest._
 
 // test class
 class ControlUnitTester(dut: ControlUnit) extends PeekPokeTester(dut) {
-    
+    poke(dut.io.opcode, 0)
+    poke(dut.io.func, 0)
+    expect(dut.io.control.ext_mode, 3)
 }
 
 // test spec

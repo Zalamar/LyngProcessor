@@ -46,9 +46,9 @@ class MemoryTop extends Module {
     //Internal Signals
     val sp_out = Wire(UInt(16.W))
     val mem_data_in_no_prop = Wire(UInt(16.W))
-    
 
-    //Outputs to PC calc unit    
+
+    //Outputs to PC calc unit
     io.out_call := (io.in_PC.asSInt + io.in_jump_amt.asSInt).asUInt
     io.out_jump := io.in_RD << 1
     io.out_return_addr := memory.io.data_out << 1
@@ -74,14 +74,14 @@ class MemoryTop extends Module {
             stack_pointer := sp_out - 2.U
         }
         is("b11".U) { //POP
-            sp_out := stack_pointer + 2.U 
+            sp_out := stack_pointer + 2.U
             stack_pointer := sp_out
         }
 
     }
 
-    
-    //Memory 
+
+    //Memory
     memory.io.mem_write := io.mem_write
     memory.io.mem_read := io.mem_read
     memory.io.addr := Mux(io.mem_addr_src === true.B, sp_out, io.in_alu_res.asUInt)
@@ -93,5 +93,5 @@ class MemoryTop extends Module {
 
 object MemStageMain extends App {
   println("Generating MEM Stage")
-  (new chisel3.stage.ChiselStage).emitVerilog(new MemoryStage(), Array("--target-dir", "generated"))
+  (new chisel3.stage.ChiselStage).emitVerilog(new MemoryTop(), Array("--target-dir", "generated"))
 }
