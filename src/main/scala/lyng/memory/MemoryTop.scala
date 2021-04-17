@@ -1,7 +1,7 @@
 package lyng.memory
 
 import lyng.Memory
-import lyng.ControlUnitOut
+import lyng.ControlUnitSig
 import chisel3._
 import chisel3.util._
 
@@ -38,7 +38,7 @@ class MemoryStageOut extends Bundle {
 class MemoryTop extends Module {
     val io = IO(new Bundle {
 
-        val ctrl = Flipped(new ControlUnitOut)
+        val ctrl = Input(new ControlUnitSig)
 
         val in = new MemoryStageIn
         val out = new MemoryStageOut
@@ -86,14 +86,16 @@ class MemoryTop extends Module {
     }
 
 
-    //Memory
-    memory.io.mem_write := io.mem_write
-    memory.io.mem_read := io.mem_read
-    memory.io.addr := Mux(io.mem_addr_src === true.B, sp_out, io.in_alu_res.asUInt)
-    mem_data_in_no_prop := Mux(io.mem_data_src === true.B, io.in_PC >> 1, io.in_RD)
-    memory.io.data_in := Mux(io.prop_ME_ME === true.B, io.in_rw_value.asUInt, mem_data_in_no_prop)
-    io.out_data_out := memory.io.data_out
-    io.data_ready_out := memory.io.valid
+
+    
+    //Memory 
+    memory.io.mem_write := io.ctrl.mem_write
+    memory.io.mem_read := io.ctrl.mem_read
+    memory.io.addr := Mux(io.ctrl.mem_addr_src === 1.U, sp_out, io.in.alu_res.asUInt)
+    mem_data_in_no_prop := Mux(io.ctrl.mem_data_src === 1.U, io.in.pc >> 1, io.in.rd)
+    memory.io.data_in := Mux(io.in.prop_ME_ME === 1.U, io.in.rw_value.asUInt, mem_data_in_no_prop)
+    io.out.data_out := memory.io.data_out
+    io.out.data_valid := memory.io.valid
 }
 
 object MemStageMain extends App {
