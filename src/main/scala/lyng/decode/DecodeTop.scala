@@ -10,7 +10,8 @@ class DecodeTop extends Module {
         val in_instr = Input(UInt(16.W))
         // inputs from WB
         val in_wr_addr = Input(UInt(3.W))
-        val in_wr_in = Input(UInt(16.W))
+        val in_data_out = Input(UInt(16.W))
+        val in_alu_res = Input(UInt(16.W))
         val in_wb_reg_write = Input(UInt(1.W))
         // outputs to ID/EX reg
         val out_rd_addr = Output(UInt(3.W))
@@ -29,13 +30,19 @@ class DecodeTop extends Module {
     val opcode = io.in_instr(11,15)
     val func = io.in_instr(0,1)
 
+    // control unit
+    val control_unit = Module(new ControlUnit)
+    control_unit.io.opcode := opcode
+    control_unit.io.func := func
+    io.out_control := control_unit.io.control
+
     // register file
     val reg_file = Module(new RegFile)
     reg_file.io.rs1_addr := rs1_addr
     reg_file.io.rs2_addr := rs2_addr
     reg_file.io.rd_addr := rd_addr
     reg_file.io.wr_addr := io.in_wr_addr
-    reg_file.io.wr_in := io.in_wr_in
+    reg_file.io.wr_in := Mux(control_unit.io.control.rd_src,io.in_data_out, io.in_alu_res)
     reg_file.io.reg_write := io.in_wb_reg_write
     io.out_rs1 := reg_file.io.rs1_out
     io.out_rs2 := reg_file.io.rs2_out
