@@ -42,17 +42,11 @@ class DecodeTop extends Module {
     reg_file.io.rs2_addr := rs2_addr
     reg_file.io.rd_addr := rd_addr
     reg_file.io.wr_addr := io.in_wr_addr
-    reg_file.io.wr_in := Mux(control_unit.io.control.rd_src,io.in_data_out, io.in_alu_res)
+    reg_file.io.wr_in := Mux(control_unit.io.control.rd_src  === true.B, io.in_data_out, io.in_alu_res)
     reg_file.io.reg_write := io.in_wb_reg_write
     io.out_rs1 := reg_file.io.rs1_out
     io.out_rs2 := reg_file.io.rs2_out
     io.out_rd := reg_file.io.rd_out
-
-    // control unit
-    val control_unit = Module(new ControlUnit)
-    control_unit.io.opcode := opcode
-    control_unit.io.func := func
-    io.out_control := control_unit.io.control
 
     // extra outputs
     io.out_rd_addr := rd_addr
