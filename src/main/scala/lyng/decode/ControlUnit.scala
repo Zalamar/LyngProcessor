@@ -46,6 +46,7 @@ class ControlUnit extends Module {
                         "STC"   -> "b10111".U
     )
 
+
     val func_ref = ListMap("ADD"   -> "b00".U,
                            "ADC"   -> "b01".U,
                            "SUB"   -> "b10".U,
@@ -55,7 +56,29 @@ class ControlUnit extends Module {
                            "XOR"   -> "b10".U,
                            "NOT"   -> "b11".U,
                            "SHFL"  -> "b00".U,
-                           "SHFA"  -> "b01".U
+                           "SHFA"  -> "b01".U,
+                           "ADDI"  -> "b00".U,
+                            "SUBI"  -> "b00".U,
+                            "MVIH"  -> "b00".U,
+                            "MVIL"  -> "b00".U,
+                            "LDIDR" -> "b00".U,
+                            "STIDR" -> "b00".U,
+                            "LDIDX" -> "b00".U,
+                            "STIDX" -> "b00".U,
+                            "JMP"   -> "b00".U,
+                            "JMPI"  -> "b00".U,
+                            "JMPI"  -> "b00".U,
+                            "JGEO"  -> "b00".U,
+                            "JLEO"  -> "b00".U,
+                            "JCO"   -> "b00".U,
+                            "JEO"   -> "b00".U,
+                            "PUSH"  -> "b00".U,
+                            "POP"   -> "b00".U,
+                            "CALL"  -> "b00".U,
+                            "JAL"   -> "b00".U,
+                            "MOVSP" -> "b00".U,
+                            "RET"   -> "b00".U,
+                            "STC"   -> "b00".U
 
     )
 
@@ -89,7 +112,7 @@ class ControlUnit extends Module {
     // alu_src
     // source 2 is register   --->  0
     // source 2 is immedeate  --->  1
-    val is_src_imm = isInstr("ADDI") | isInstr("LDIDR") | isInstr("STIDR") | isInstr("JMPI") | isInstr("SUBI") | isInstr("SHIFL") | isInstr("SHIFTA") | isInstr("MVIL") | isInstr("MVIH")
+    val is_src_imm = isInstr("ADDI") | isInstr("LDIDR") | isInstr("STIDR") | isInstr("JMPI") | isInstr("SUBI") | isInstr("SHFL") | isInstr("SHFA") | isInstr("MVIL") | isInstr("MVIH")
     when (is_src_imm) {
         io.control.alu_src := 1.U
     } otherwise {
@@ -97,7 +120,7 @@ class ControlUnit extends Module {
     }
 
     // alu_op
-    val is_add_group = isInstr("ADD") | isInstr("ADDI") | isInstr("LDIDR") | isInstr("STIDR") | isInstr("LDIDR") | isInstr("STDIX") | isInstr("JMPI")
+    val is_add_group = isInstr("ADD") | isInstr("ADDI") | isInstr("LDIDR") | isInstr("STIDR") | isInstr("LDIDR") | isInstr("STIDX") | isInstr("JMPI")
     val is_sub_group = isInstr("SUB") | isInstr("SUBI") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JEO")
     when (is_add_group) {
         io.control.alu_op := "b0010".U
@@ -115,9 +138,9 @@ class ControlUnit extends Module {
         io.control.ext_mode := "b1010".U
     } .elsewhen (isInstr("NOT")) {
         io.control.ext_mode := "b1011".U
-    } .elsewhen (isInstr("SHIFTL")) {
+    } .elsewhen (isInstr("SHFL")) {
         io.control.ext_mode := "b1100".U
-    } .elsewhen (isInstr("SHIFTA")) {
+    } .elsewhen (isInstr("SHFA")) {
         io.control.ext_mode := "b1101".U
     } .elsewhen (isInstr("MVIH")) {
         io.control.ext_mode := "b1110".U
