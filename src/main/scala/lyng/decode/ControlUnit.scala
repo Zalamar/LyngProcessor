@@ -2,8 +2,8 @@ package lyng.decode
 
 import chisel3._
 import chisel3.util._
-import scala.collection.immutable.ListMap
 import lyng.ControlUnitSig
+import lyng.RefernceVals
 
 class ControlUnit extends Module {
     val io = IO(new Bundle {
@@ -12,58 +12,9 @@ class ControlUnit extends Module {
         val control = Output(new ControlUnitSig)
     })
 
-    val op_ref = ListMap("ADD"   -> "b00000".U,
-                        "ADC"   -> "b00000".U,
-                        "SUB"   -> "b00000".U,
-                        "SBB"   -> "b00000".U,
-                        "AND"   -> "b00001".U,
-                        "OR"    -> "b00001".U,
-                        "XOR"   -> "b00001".U,
-                        "NOT"   -> "b00001".U,
-                        "SHFL"  -> "b00010".U,
-                        "SHFA"  -> "b00010".U,
-                        "ADDI"  -> "b00011".U,
-                        "SUBI"  -> "b00100".U,
-                        "MVIH"  -> "b00101".U,
-                        "MVIL"  -> "b00110".U,
-                        "LDIDR" -> "b00111".U,
-                        "STIDR" -> "b01000".U,
-                        "LDIDX" -> "b01001".U,
-                        "STIDX" -> "b01010".U,
-                        "JMP"   -> "b01011".U,
-                        "JMPI"  -> "b01100".U,
-                        "JMPI"  -> "b01100".U,
-                        "JGEO"  -> "b01101".U,
-                        "JLEO"  -> "b01110".U,
-                        "JCO"   -> "b01111".U,
-                        "JEO"   -> "b10000".U,
-                        "PUSH"  -> "b10001".U,
-                        "POP"   -> "b10010".U,
-                        "CALL"  -> "b10011".U,
-                        "JAL"   -> "b10100".U,
-                        "MOVSP" -> "b10101".U,
-                        "RET"   -> "b10110".U,
-                        "STC"   -> "b10111".U
-    )
-
-    val func_ref = ListMap("ADD"   -> "b00".U,
-                           "ADC"   -> "b01".U,
-                           "SUB"   -> "b10".U,
-                           "SBB"   -> "b11".U,
-                           "AND"   -> "b00".U,
-                           "OR"    -> "b01".U,
-                           "XOR"   -> "b10".U,
-                           "NOT"   -> "b11".U,
-                           "SHFL"  -> "b00".U,
-                           "SHFA"  -> "b01".U
-
-    )
-
     // helper function to detect instruction based on opcode and func code
     def isInstr(opcodeStr : String) = {
-        Mux(io.opcode <= "b00010".U,
-            io.opcode === op_ref(opcodeStr) & io.func === func_ref(opcodeStr),
-            io.opcode === op_ref(opcodeStr))
+        Mux(io.opcode <= "b00010".U, io.opcode === RefernceVals.op_ref(opcodeStr) & io.func === RefernceVals.func_ref(opcodeStr), io.opcode === RefernceVals.op_ref(opcodeStr))
     }
 
     // ext_mode
@@ -89,7 +40,7 @@ class ControlUnit extends Module {
     // alu_src
     // source 2 is register   --->  0
     // source 2 is immedeate  --->  1
-    val is_src_imm = isInstr("ADDI") | isInstr("LDIDR") | isInstr("STIDR") | isInstr("JMPI") | isInstr("SUBI") | isInstr("SHIFL") | isInstr("SHIFTA") | isInstr("MVIL") | isInstr("MVIH")
+    val is_src_imm = isInstr("ADDI") | isInstr("LDIDR") | isInstr("STIDR") | isInstr("JMPI") | isInstr("SUBI") | isInstr("SHFL") | isInstr("SHFA") | isInstr("MVIL") | isInstr("MVIH")
     when (is_src_imm) {
         io.control.alu_src := 1.U
     } otherwise {
@@ -97,48 +48,123 @@ class ControlUnit extends Module {
     }
 
     // alu_op
-    val is_add_group = isInstr("ADD") | isInstr("ADDI") | isInstr("LDIDR") | isInstr("STIDR") | isInstr("LDIDR") | isInstr("STDIX") | isInstr("JMPI")
+    val is_add_group = isInstr("ADD") | isInstr("ADDI") | isInstr("LDIDR") | isInstr("STIDR") | isInstr("LDIDX") | isInstr("STIDX") | isInstr("JMPI")
     val is_sub_group = isInstr("SUB") | isInstr("SUBI") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JEO")
     when (is_add_group) {
         io.control.alu_op := "b0010".U
     } .elsewhen (isInstr("ADC")) {
-        io.control.ext_mode := "b0011".U
+        io.control.alu_op := "b0011".U
     } .elsewhen (is_sub_group) {
-        io.control.ext_mode := "b0011".U
+        io.control.alu_op := "b0100".U
     } .elsewhen (isInstr("SBB")) {
-        io.control.ext_mode := "b0101".U
+        io.control.alu_op := "b0101".U
     } .elsewhen (isInstr("AND")) {
-        io.control.ext_mode := "b1000".U
+        io.control.alu_op := "b1000".U
     } .elsewhen (isInstr("OR")) {
-        io.control.ext_mode := "b1001".U
+        io.control.alu_op := "b1001".U
     } .elsewhen (isInstr("XOR")) {
-        io.control.ext_mode := "b1010".U
+        io.control.alu_op := "b1010".U
     } .elsewhen (isInstr("NOT")) {
-        io.control.ext_mode := "b1011".U
-    } .elsewhen (isInstr("SHIFTL")) {
-        io.control.ext_mode := "b1100".U
-    } .elsewhen (isInstr("SHIFTA")) {
-        io.control.ext_mode := "b1101".U
+        io.control.alu_op := "b1011".U
+    } .elsewhen (isInstr("SHFL")) {
+        io.control.alu_op := "b1100".U
+    } .elsewhen (isInstr("SHFA")) {
+        io.control.alu_op := "b1101".U
     } .elsewhen (isInstr("MVIH")) {
-        io.control.ext_mode := "b1110".U
+        io.control.alu_op := "b1110".U
     } .elsewhen (isInstr("MVIL")) {
-        io.control.ext_mode := "b1111".U
+        io.control.alu_op := "b1111".U
     } otherwise { // NOP
-        io.control.ext_mode := 0.U
+        io.control.alu_op := 0.U
     }
 
-    // TODO: implement following
-    io.control.carry_write := 0.U
-    io.control.jmp_mode := 0.U
-    io.control.stack_op := 0.U
-    io.control.mem_data_src := 0.U
-    io.control.mem_addr_src := 0.U
-    io.control.mem_read := 0.U
-    io.control.mem_write := 0.U
-    io.control.rd_src := 0.U
+    // carry_write
+    when (isInstr("ADC") | isInstr("SBB") | isInstr("ADDI") | isInstr("SUBI") | isInstr("STC")) {
+        io.control.carry_write := 1.U
+    } otherwise {
+        io.control.carry_write := 0.U
+    }
+
+    // jmp_mode
+    // Rs >= Rd     --->  010
+    // Rs <= Rd     --->  011
+    // carry == 1   --->  100
+    // Rs == Rd     --->  101
+    // always jump  --->  111
+    // never jump   --->  000
+    when (isInstr("JGEO")) {
+        io.control.jmp_mode := "b010".U
+    } .elsewhen (isInstr("JLEO")) {
+        io.control.jmp_mode := "b011".U
+    } .elsewhen (isInstr("JCO")) {
+        io.control.jmp_mode := "b100".U
+    } .elsewhen (isInstr("JEO")) {
+        io.control.jmp_mode := "b101".U
+    } .elsewhen (isInstr("JMP") | isInstr("JMPI") | isInstr("CALL") | isInstr("JAL") | isInstr("RET")) {
+        io.control.jmp_mode := "b111".U
+    } otherwise {
+        io.control.jmp_mode := 0.U
+    }
+
+    // stack_op
+    when (isInstr("POP") | isInstr("RET")) {
+        io.control.stack_op := "b11".U
+    } .elsewhen (isInstr("PUSH") | isInstr("CALL") | isInstr("JAL")) {
+        io.control.stack_op := "b10".U
+    } .elsewhen (isInstr("MOVSP")) {
+        io.control.stack_op := "b01".U
+    } otherwise {
+        io.control.stack_op := 0.U
+    }
+
+    // mem_data_src
+    // source is Rd  --->  0
+    // source is PC  --->  1
+    when (isInstr("JAL") | isInstr("CALL")) {
+        io.control.mem_data_src := 1.U
+    } otherwise {
+        io.control.mem_data_src := 0.U
+    }
+
+    // mem_addr_src
+    // source is ALU  --->  1
+    // source is SP   --->  0
+    when (isInstr("LDIDR") | isInstr("STIDR") | isInstr("LDIDX") | isInstr("STIDX")) {
+        io.control.mem_addr_src := 0.U
+    } otherwise {
+        io.control.mem_addr_src := 1.U
+    }
+
+    // mem_write
+    when (isInstr("LDIDR") | isInstr("LDIDX") | isInstr("POP") | isInstr("RET")) {
+        io.control.mem_write := 1.U
+    } otherwise {
+        io.control.mem_write := 0.U
+    }
+
+    // mem_read
+    when (isInstr("STIDR") | isInstr("STIDX") | isInstr("PUSH") | isInstr("CALL") | isInstr("JAL")) {
+        io.control.mem_read := 1.U
+    } otherwise {
+        io.control.mem_read := 0.U
+    }
+
+    // rd_src
+    // source is ALU result  --->  0
+    // source is memory      --->  1
+    when (isInstr("LDIDR") | isInstr("LDIDX") | isInstr("POP")) {
+        io.control.rd_src := 1.U
+    } otherwise {
+        io.control.rd_src := 0.U
+    }
+
+    io.control.reg_write := 0.U
+    io.control.carry_src := 0.U
+    io.control.jmp_amt_src := 0.U
+    io.control.pc_src := 0.U
 }
 
 object ControlUnitMain extends App {
-  println("Generating ALU")
-  (new chisel3.stage.ChiselStage).emitVerilog(new ControlUnit(), Array("--target-dir", "generated"))
+    println("Generating ALU")
+    (new chisel3.stage.ChiselStage).emitVerilog(new ControlUnit(), Array("--target-dir", "generated"))
 }
