@@ -31,7 +31,7 @@ class Extender extends Module {
     }
   } .elsewhen(io.ext_mode === 4.U) {
     io.immediate_out := Cat("b00000".U, io.immediate_in)
-  } .elsewhen(io.ext_mode === 5.U) {
+  } .otherwise {
     when (io.immediate_in(10) === 1.U) {
       io.immediate_out := Cat("b11111".U, io.immediate_in)
     } .otherwise {
