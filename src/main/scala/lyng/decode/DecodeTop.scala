@@ -22,15 +22,13 @@ class DecodeOut extends Bundle {
         val rs2_addr = Output(UInt(3.W))
         val rd = Output(UInt(16.W))
         val imm = Output(UInt(11.W))
+        val ctrl = Output(new ControlUnitSig)
 }
 
 class DecodeTop extends Module {
     val io = IO(new Bundle {
         val in = new DecodeIn
-
         val out = new DecodeOut
-
-        val ctrl = Output(new ControlUnitSig)
     })
 
     // spliting in_instruction
@@ -45,7 +43,7 @@ class DecodeTop extends Module {
     val control_unit = Module(new ControlUnit)
     control_unit.io.opcode := opcode
     control_unit.io.func := func
-    io.ctrl := control_unit.io.control
+    io.out.ctrl := control_unit.io.ctrl
 
     // register file
     val reg_file = Module(new RegFile)
