@@ -5,7 +5,6 @@ import chisel3.iotesters.PeekPokeTester
 import org.scalatest._
 import lyng.ControlUnitSig
 import lyng.RefernceVals
-import lyng.decode.ControlUnit
 
 // test class
 class ControlUnitTester(dut : ControlUnit) extends PeekPokeTester(dut) {
@@ -42,7 +41,7 @@ class ControlUnitTester(dut : ControlUnit) extends PeekPokeTester(dut) {
         print(s + ",")
         poke(dut.io.opcode, RefernceVals.op_ref(s))
         poke(dut.io.func, RefernceVals.func_ref(s))
-        printControlSigCSV(dut.io.control)
+        printControlSigCSV(dut.io.ctrl)
     }
 
 
