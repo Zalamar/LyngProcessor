@@ -31,10 +31,12 @@ class ALU extends Module {
   val s_alu_out = Wire(SInt(17.W))
   io.alu_out := s_alu_out
   s_alu_out := 0.S
-  io.gez := io.alu_in1 > io.alu_in2
+  io.gez := io.alu_in1 >= io.alu_in2
   io.zero := io.alu_in1 === io.alu_in2
 
-  when(io.alu_opcode === 2.U) { // ADD/ADDI
+  when(io.alu_opcode === 1.U) { // ADD/ADDI
+    carry := 1.U
+  } .elsewhen(io.alu_opcode === 2.U) { // ADD/ADDI
     s_alu_out := s_alu_in1 + s_alu_in2
     when((!s_alu_in1(15) & !s_alu_in2(15) & s_alu_out(15)) | (s_alu_in1(15) & s_alu_in2(15) & !s_alu_out(15))) {
       carry := 1.U

@@ -177,6 +177,8 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs2, b)
     poke(dut.io.ctrl.alu_op, 13)
     result = a.toChar >> b
+    while (result > 32767) {result = result - 65536}
+    while (result < -32768) {result = result + 65536}
     expect(dut.io.out.alu_res, result.toChar)
   }
 
@@ -335,12 +337,13 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
   if (debug) {print("Testing JGEO")}
   for (i <- 1 to testSize) {
     a = start + r.nextInt((end - start) + 1)
-    b = -16 + r.nextInt((15 - -16) + 1)
-    c = start + r.nextInt((end - start) + 1)
+    b = start + r.nextInt((a - start) + 1)
+    c = -16 + r.nextInt((15 - -16) + 1)
 
     poke(dut.io.in.rs1, a)
-    poke(dut.io.in.rs2, a)
-    result = a << 1
+    poke(dut.io.in.rs2, b)
+    poke(dut.io.in.imm, c)
+    result = c << 1
     expect(dut.io.out.jump_amt, result)
     expect(dut.io.out.jump, 1)
   }
@@ -349,13 +352,17 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
 
   // JLEO
   poke(dut.io.ctrl.ext_mode, 1)
-  poke(dut.io.ctrl.jmp_mode, 3)
+  poke(dut.io.ctrl.jmp_mode, 4)
   if (debug) {print("Testing JLEO")}
   for (i <- 1 to testSize) {
-    a = -16 + r.nextInt((15 - -16) + 1)
+    b = start + r.nextInt((end - start) + 1)
+    a = start + r.nextInt((b - start) + 1)
+    c = -16 + r.nextInt((15 - -16) + 1)
 
-    poke(dut.io.in.imm, a)
-    result = a << 1
+    poke(dut.io.in.rs1, a)
+    poke(dut.io.in.rs2, b)
+    poke(dut.io.in.imm, c)
+    result = c << 1
     expect(dut.io.out.jump_amt, result)
     expect(dut.io.out.jump, 1)
   }
@@ -363,35 +370,38 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
   poke(dut.io.ctrl.jmp_mode, 0)
 
   // JCO
+  poke(dut.io.ctrl.alu_op, 1)
+  step(1)
+
+  poke(dut.io.ctrl.ext_mode, 1)
   poke(dut.io.ctrl.jmp_mode, 5)
   if (debug) {print("Testing JCO")}
   for (i <- 1 to testSize) {
-    a = -1024 + r.nextInt((1023 - -1024) + 1)
-    b = -1024 + r.nextInt((1023 - -1024) + 1)
+    c = -16 + r.nextInt((15 - -16) + 1)
 
-    result = a+b
-    expect(dut.io.out.alu_res, result)
+    poke(dut.io.in.imm, c)
+    result = c << 1
+    expect(dut.io.out.jump_amt, result)
+    expect(dut.io.out.jump, 1)
   }
-  poke(dut.io.ctrl.alu_src, 0)
   poke(dut.io.ctrl.ext_mode, 0)
   poke(dut.io.ctrl.jmp_mode, 0)
 
   // JEO
-  poke(dut.io.ctrl.alu_src, 2)
   poke(dut.io.ctrl.ext_mode, 1)
-  poke(dut.io.ctrl.jmp_mode, 4)
-  if (debug) {print("Testing JCO")}
+  poke(dut.io.ctrl.jmp_mode, 3)
+  if (debug) {print("Testing JEO")}
   for (i <- 1 to testSize) {
     a = start + r.nextInt((end - start) + 1)
-    b = -16 + r.nextInt((15 - -16) + 1)
+    c = -16 + r.nextInt((15 - -16) + 1)
 
     poke(dut.io.in.rs1, a)
-    poke(dut.io.in.imm, b)
-    poke(dut.io.ctrl.alu_op, 2)
-    result = a+b
-    expect(dut.io.out.alu_res, result)
+    poke(dut.io.in.rs2, a)
+    poke(dut.io.in.imm, c)
+    result = c << 1
+    expect(dut.io.out.jump_amt, result)
+    expect(dut.io.out.jump, 1)
   }
-  poke(dut.io.ctrl.alu_src, 0)
   poke(dut.io.ctrl.ext_mode, 0)
 
 }
