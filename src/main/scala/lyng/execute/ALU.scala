@@ -36,24 +36,40 @@ class ALU extends Module {
 
   when(io.alu_opcode === 2.U) { // ADD/ADDI
     s_alu_out := s_alu_in1 + s_alu_in2
-    carry := !s_alu_out(16) & s_alu_in1(15) & s_alu_in2(15)
+    when((!s_alu_in1(15) & !s_alu_in2(15) & s_alu_out(15)) | (s_alu_in1(15) & s_alu_in2(15) & !s_alu_out(15))) {
+      carry := 1.U
+    } .otherwise {
+      carry := 0.U
+    }
   } .elsewhen(io.alu_opcode === 3.U) { // ADC
     when(carry===1.U) { // TODO: Share with SUB
       s_alu_out := s_alu_in1 + s_alu_in2 + 1.S
     } .otherwise {
       s_alu_out := s_alu_in1 + s_alu_in2
     }
-    carry := !s_alu_out(16) & s_alu_in1(15) & s_alu_in2(15)
+    when((!s_alu_in1(15) & !s_alu_in2(15) & s_alu_out(15)) | (s_alu_in1(15) & s_alu_in2(15) & !s_alu_out(15))) {
+      carry := 1.U
+    } .otherwise {
+      carry := 0.U
+    }
   } .elsewhen(io.alu_opcode === 4.U) { // SUB/SUBI TODO: Share with ADD
     s_alu_out := s_alu_in1 - s_alu_in2
-    carry := !s_alu_out(16) & s_alu_in1(15) & s_alu_in2(15)
+    when(s_alu_in1 < s_alu_in2) {
+      carry := 1.U
+    } .otherwise {
+      carry := 0.U
+    }
   } .elsewhen(io.alu_opcode === 5.U) { // SBB
     when(carry===1.U) { // TODO: Share with SUB
-      s_alu_out := s_alu_in1 + s_alu_in2 - 1.S
+      s_alu_out := s_alu_in1 - s_alu_in2 - 1.S
     } .otherwise {
-      s_alu_out := s_alu_in1 + s_alu_in2
+      s_alu_out := s_alu_in1 - s_alu_in2
     }
-    carry := !s_alu_out(16) & s_alu_in1(15) & s_alu_in2(15)
+    when(s_alu_in1 < s_alu_in2) {
+      carry := 1.U
+    } .otherwise {
+      carry := 0.U
+    }
   } .elsewhen(io.alu_opcode === 8.U) { // AND
     s_alu_out := s_alu_in1 & s_alu_in2
   } .elsewhen(io.alu_opcode === 9.U) { // OR
@@ -63,10 +79,12 @@ class ALU extends Module {
   } .elsewhen(io.alu_opcode === 11.U) { // NOT
     s_alu_out := ~s_alu_in1
   } .elsewhen(io.alu_opcode === 12.U) { // SHIFTL
-    s_alu_out := (s_alu_in1.asUInt() << s_alu_in2.asUInt()).asSInt()
+    s_alu_out := s_alu_in1 << s_alu_in2.asUInt()
   } .elsewhen(io.alu_opcode === 13.U) { // SHIFTR
     s_alu_out := (s_alu_in1.asUInt() >> s_alu_in2.asUInt()).asSInt()
-  } .elsewhen(io.alu_opcode === 14.U) { // MVIH/MVIL
+  } .elsewhen(io.alu_opcode === 14.U) { // MVIH
+    s_alu_out := (s_alu_in2.asUInt() << 8).asSInt()
+  } .elsewhen(io.alu_opcode === 15.U) { // MVIL
     s_alu_out := s_alu_in2
   }
 
