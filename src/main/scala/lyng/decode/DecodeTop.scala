@@ -1,6 +1,5 @@
 package lyng.decode
 
-
 import chisel3._
 import chisel3.util._
 import lyng.ControlUnitSig
@@ -24,12 +23,12 @@ class DecodeTop extends Module {
     })
 
     // spliting in_instruction
-    val rs1_addr = io.in_instr(8,10)
-    val rs2_addr = io.in_instr(2,4)
-    val rd_addr = io.in_instr(5,7)
-    val imm = io.in_instr(0,10)
-    val opcode = io.in_instr(11,15)
-    val func = io.in_instr(0,1)
+    val rs1_addr = io.in_instr(10,8)
+    val rs2_addr = io.in_instr(4,2)
+    val rd_addr = io.in_instr(7,5)
+    val imm = io.in_instr(10,0)
+    val opcode = io.in_instr(15,11)
+    val func = io.in_instr(1,0)
 
     // control unit
     val control_unit = Module(new ControlUnit)

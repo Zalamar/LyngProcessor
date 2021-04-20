@@ -158,10 +158,38 @@ class ControlUnit extends Module {
         io.control.rd_src := 0.U
     }
 
-    io.control.reg_write := 0.U
-    io.control.carry_src := 0.U
-    io.control.jmp_amt_src := 0.U
-    io.control.pc_src := 0.U
+    // reg_write
+    val is_reg_wr = isInstr("ADD") | isInstr("ADC") | isInstr("SUB") | isInstr("SBB") | isInstr("AND") | isInstr("OR") | isInstr("XOR") | isInstr("NOT") | isInstr("SHFL") | isInstr("SHFA") | isInstr("ADDI") | isInstr("SUBI") | isInstr("MVIH") | isInstr("MVIL") | isInstr("SHFL") | isInstr("LDIDR") | isInstr("LDIDX") | isInstr("POP")
+    when (is_reg_wr) {
+        io.control.reg_write := 1.U
+    } otherwise {
+        io.control.reg_write := 0.U
+    }
+
+    // carry_src
+    when (isInstr("STC")) {
+        io.control.carry_src := 1.U
+    } otherwise {
+        io.control.carry_src := 0.U
+    }
+
+    // jmp_amt_src
+    when (isInstr("CALL") | isInstr("JAL") | isInstr("JMP") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JCO") | isInstr("JEO")) {
+        io.control.jmp_amt_src := 1.U
+    } otherwise {
+        io.control.jmp_amt_src := 0.U
+    }
+
+    // pc_src
+    when (isInstr("JMP") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JCO") | isInstr("JEO")) {
+        io.control.pc_src := "b01".U
+    } .elsewhen (isInstr("CALL") | isInstr("JAL") | isInstr("JMPI")) {
+        io.control.pc_src := "b10".U
+    } . elsewhen (isInstr("RET")) {
+        io.control.pc_src := "b11".U
+    } otherwise {
+        io.control.pc_src := 0.U
+    }
 }
 
 object ControlUnitMain extends App {
