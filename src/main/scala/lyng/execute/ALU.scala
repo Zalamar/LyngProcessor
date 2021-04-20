@@ -72,7 +72,9 @@ class ALU extends Module {
 
 }
 
+/**
 object ALUMain extends App {
   println("Generating ALU")
   (new chisel3.stage.ChiselStage).emitVerilog(new ALU(), Array("--target-dir", "generated"))
 }
+*/

@@ -9,7 +9,7 @@ import chisel3.util._
  *
  *    data_port_word is the
  */
-class Memory(addr_size : Int, word_size : Int, double_word_port: Boolean) extends Module {
+class Memory(addr_size : Int, word_size : Int, double_word_port: Boolean, fixed_output : Boolean = false, fixed_out_addr : Int = 0) extends Module {
 
     val io = IO(new Bundle {
         val mem_read = Input(UInt(1.W))
@@ -41,4 +41,5 @@ class Memory(addr_size : Int, word_size : Int, double_word_port: Boolean) extend
         }
     }
 }   
-    
+
+

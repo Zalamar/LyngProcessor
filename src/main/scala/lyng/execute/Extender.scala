@@ -3,7 +3,7 @@ package lyng.execute
 import chisel3._
 import chisel3.util._
 
-class extender extends Module {
+class Extender extends Module {
   val io = IO(new Bundle {
     val immediate_in = Input(Bits(11.W))
     val ext_mode = Input(Bits(3.W))
@@ -12,6 +12,7 @@ class extender extends Module {
 
   // See ALU_Control_Codes for opcodes
   // TODO: Could this be improved by doing it in steps?
+  io.immediate_out := Cat("b00000000000".U, io.immediate_in)
   when(io.ext_mode === 0.U) {
     io.immediate_out := Cat("b00000000000".U, io.immediate_in)
   } .elsewhen(io.ext_mode === 1.U) {
