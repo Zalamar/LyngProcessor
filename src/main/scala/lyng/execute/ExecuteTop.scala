@@ -18,8 +18,8 @@ class ExecuteIn extends Bundle {
 class ExecuteOut extends Bundle {
     // Outputs
     val jump = Output(UInt(1.W))
-    val jump_amt = Output(UInt(17.W))
-    val alu_res = Output(UInt(16.W))
+    val jump_amt = Output(SInt(17.W))
+    val alu_res = Output(SInt(16.W))
 }
 
 
@@ -36,7 +36,7 @@ class ExecuteTop extends Module{
   val extender = Module(new Extender())
 
   ALU.io.alu_opcode := io.ctrl.alu_op
-  io.out.alu_res := ALU.io.alu_out.asUInt()
+  io.out.alu_res := ALU.io.alu_out
 
   extender.io.immediate_in := io.in.imm
   extender.io.ext_mode := io.ctrl.ext_mode
@@ -63,7 +63,7 @@ class ExecuteTop extends Module{
     ALU.io.alu_in2 := extender.io.immediate_out.asSInt()
   }
 
-  io.out.alu_res := ALU.io.alu_out.asUInt()
+  io.out.alu_res := ALU.io.alu_out
 
   io.out.jump := 0.U
   switch(io.ctrl.jmp_mode) {
@@ -85,8 +85,8 @@ class ExecuteTop extends Module{
   }
 
   when (io.out.jump === 0.U) {
-    io.out.jump_amt := 0.U
+    io.out.jump_amt := 0.S
   } .otherwise {
-    io.out.jump_amt := extender.io.immediate_out << 1
+    io.out.jump_amt := (extender.io.immediate_out << 1).asSInt()
   }
 }
