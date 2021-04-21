@@ -57,8 +57,11 @@ class LyngTop extends Module {
         val load = Input(UInt(2.W))
         val addr = Input(UInt(17.W))
         val value = Input(UInt(16.W))
+        val out_valid = Output(UInt(16.W))
         val out = Output(UInt(16.W))
     })
+
+    val out_addr = "hFFFE".U
 
     val instr_mem = Module(new Memory(17, 8, true))
     val data_mem = Module(new Memory(16, 8, true))
@@ -249,8 +252,10 @@ class LyngTop extends Module {
     id_ex.io.ctrl := stall.io.id_ex_mode
     ex_me.io.ctrl := stall.io.ex_me_mode
     me_wb.io.ctrl := stall.io.me_wb_mode
-    
-    io.out := rw_value
+
+    //Output
+    io.out_valid := ex_me.io.out.ctrl.mem_write === 1.U && ex_me.io.ctrl === "b00".U && me.io.out.addr === out_addr
+    io.out := me.io.out.data_in
 
 }
 
