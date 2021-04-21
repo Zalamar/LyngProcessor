@@ -24,14 +24,18 @@ class ControlUnit extends Module {
     // 8-bit signed     --->  011
     // 11-bit unsigned  --->  100
     // 11-bit signed    --->  101
-    val is_5b_unsigned = isInstr("ADDI") | isInstr("SUBI")
-    val is_5b_signed = isInstr("LDIDR") | isInstr("STIDR") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JCO")
-    val is_8b_unsigned = isInstr("MVIH") | isInstr("MVIL")
-    when (is_5b_unsigned) {
+    val is_5b_unsigned = Wire(UInt(1.W))
+    val is_5b_signed = Wire(UInt(1.W))
+    val is_8b_unsigned = Wire(UInt(1.W))
+    is_5b_unsigned := isInstr("ADDI") | isInstr("SUBI")
+    is_5b_signed := isInstr("LDIDR") | isInstr("STIDR") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JCO")
+    is_8b_unsigned := isInstr("MVIH") | isInstr("MVIL")
+
+    when (is_5b_unsigned === 1.U) {
         io.ctrl.ext_mode := "b000".U
-    } .elsewhen (is_5b_signed) {
+    } .elsewhen (is_5b_signed === 1.U) {
         io.ctrl.ext_mode := "b001".U
-    } .elsewhen (is_8b_unsigned) {
+    } .elsewhen (is_8b_unsigned === 1.U) {
         io.ctrl.ext_mode := "b010".U
     } otherwise { // KMP, JCO, JAL
         io.ctrl.ext_mode := "b101".U
@@ -40,21 +44,24 @@ class ControlUnit extends Module {
     // alu_src
     // source 2 is register   --->  0
     // source 2 is immedeate  --->  1
-    val is_src_imm = isInstr("ADDI") | isInstr("LDIDR") | isInstr("STIDR") | isInstr("JMPI") | isInstr("SUBI") | isInstr("SHFL") | isInstr("SHFA") | isInstr("MVIL") | isInstr("MVIH")
-    when (is_src_imm) {
+    val is_src_imm = Wire(UInt(1.W))
+    is_src_imm := isInstr("ADDI") | isInstr("LDIDR") | isInstr("STIDR") | isInstr("JMPI") | isInstr("SUBI") | isInstr("SHFL") | isInstr("SHFA") | isInstr("MVIL") | isInstr("MVIH")
+    when (is_src_imm === 1.U) {
         io.ctrl.alu_src := 1.U
     } otherwise {
         io.ctrl.alu_src := 0.U
     }
 
     // alu_op
-    val is_add_group = isInstr("ADD") | isInstr("ADDI") | isInstr("LDIDR") | isInstr("STIDR") | isInstr("LDIDX") | isInstr("STIDX") | isInstr("JMPI")
-    val is_sub_group = isInstr("SUB") | isInstr("SUBI") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JEO")
-    when (is_add_group) {
+    val is_add_group = Wire(UInt(1.W))
+    val is_sub_group = Wire(UInt(1.W))
+    is_add_group := isInstr("ADD") | isInstr("ADDI") | isInstr("LDIDR") | isInstr("STIDR") | isInstr("LDIDX") | isInstr("STIDX") | isInstr("JMPI")
+    is_sub_group := isInstr("SUB") | isInstr("SUBI") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JEO")
+    when (is_add_group === 1.U) {
         io.ctrl.alu_op := "b0010".U
     } .elsewhen (isInstr("ADC")) {
         io.ctrl.alu_op := "b0011".U
-    } .elsewhen (is_sub_group) {
+    } .elsewhen (is_sub_group === 1.U) {
         io.ctrl.alu_op := "b0100".U
     } .elsewhen (isInstr("SBB")) {
         io.ctrl.alu_op := "b0101".U
@@ -159,8 +166,9 @@ class ControlUnit extends Module {
     }
 
     // reg_write
-    val is_reg_wr = isInstr("ADD") | isInstr("ADC") | isInstr("SUB") | isInstr("SBB") | isInstr("AND") | isInstr("OR") | isInstr("XOR") | isInstr("NOT") | isInstr("SHFL") | isInstr("SHFA") | isInstr("ADDI") | isInstr("SUBI") | isInstr("MVIH") | isInstr("MVIL") | isInstr("SHFL") | isInstr("LDIDR") | isInstr("LDIDX") | isInstr("POP")
-    when (is_reg_wr) {
+    val is_reg_wr = Wire(UInt(1.W))
+    is_reg_wr := isInstr("ADD") | isInstr("ADC") | isInstr("SUB") | isInstr("SBB") | isInstr("AND") | isInstr("OR") | isInstr("XOR") | isInstr("NOT") | isInstr("SHFL") | isInstr("SHFA") | isInstr("ADDI") | isInstr("SUBI") | isInstr("MVIH") | isInstr("MVIL") | isInstr("SHFL") | isInstr("LDIDR") | isInstr("LDIDX") | isInstr("POP")
+    when (is_reg_wr === 1.U) {
         io.ctrl.reg_write := 1.U
     } otherwise {
         io.ctrl.reg_write := 0.U
