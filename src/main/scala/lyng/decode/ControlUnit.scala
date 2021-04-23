@@ -28,7 +28,7 @@ class ControlUnit extends Module {
     val is_5b_signed = Wire(UInt(1.W))
     val is_8b_unsigned = Wire(UInt(1.W))
     is_5b_unsigned := isInstr("ADDI") | isInstr("SUBI")
-    is_5b_signed := isInstr("LDIDR") | isInstr("STIDR") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JCO")
+    is_5b_signed := isInstr("LDIDR") | isInstr("STIDR") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JEO") | isInstr("SHFL") | isInstr("SHFA")
     is_8b_unsigned := isInstr("MVIH") | isInstr("MVIL")
 
     when (is_5b_unsigned === 1.U) {
@@ -81,12 +81,14 @@ class ControlUnit extends Module {
         io.ctrl.alu_op := "b1110".U
     } .elsewhen (isInstr("MVIL")) {
         io.ctrl.alu_op := "b1111".U
+    } .elsewhen (isInstr("STC")) {
+        io.ctrl.alu_op := "b0001".U
     } otherwise { // NOP
         io.ctrl.alu_op := 0.U
     }
 
     // carry_write
-    when (isInstr("ADC") | isInstr("SBB") | isInstr("ADDI") | isInstr("SUBI") | isInstr("STC")) {
+    when (isInstr("ADC") | isInstr("SBB") | isInstr("ADDI") | isInstr("SUBI") | isInstr("STC") | isInstr("ADD") | isInstr("SUB")) {
         io.ctrl.carry_write := 1.U
     } otherwise {
         io.ctrl.carry_write := 0.U
@@ -167,7 +169,7 @@ class ControlUnit extends Module {
 
     // reg_write
     val is_reg_wr = Wire(UInt(1.W))
-    is_reg_wr := isInstr("ADD") | isInstr("ADC") | isInstr("SUB") | isInstr("SBB") | isInstr("AND") | isInstr("OR") | isInstr("XOR") | isInstr("NOT") | isInstr("SHFL") | isInstr("SHFA") | isInstr("ADDI") | isInstr("SUBI") | isInstr("MVIH") | isInstr("MVIL") | isInstr("SHFL") | isInstr("LDIDR") | isInstr("LDIDX") | isInstr("POP")
+    is_reg_wr := isInstr("ADD") | isInstr("ADC") | isInstr("SUB") | isInstr("SBB") | isInstr("AND") | isInstr("OR") | isInstr("XOR") | isInstr("NOT") | isInstr("SHFL") | isInstr("SHFA") | isInstr("ADDI") | isInstr("SUBI") | isInstr("MVIH") | isInstr("MVIL") | isInstr("LDIDR") | isInstr("LDIDX") | isInstr("POP")
     when (is_reg_wr === 1.U) {
         io.ctrl.reg_write := 1.U
     } otherwise {
