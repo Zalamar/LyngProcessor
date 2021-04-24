@@ -97,7 +97,7 @@ class LyngTop extends Module {
 
     next_pc := pc.io.out + 2.U
     when(ex_me.io.out.jump === 1.U) {
-        switch(ex_me.io.out.ctrl.jmp_mode) {
+        switch(ex_me.io.out.ctrl.pc_src) {
             is("b00".U) {
                 next_pc := pc.io.out + 2.U
             }
