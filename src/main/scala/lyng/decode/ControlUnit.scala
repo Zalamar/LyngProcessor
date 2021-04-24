@@ -150,16 +150,16 @@ class ControlUnit extends Module {
 
     // mem_write
     when (isInstr("LDIDR") | isInstr("LDIDX") | isInstr("POP") | isInstr("RET")) {
-        io.ctrl.mem_write := 1.U
+        io.ctrl.mem_read := 1.U
     } otherwise {
-        io.ctrl.mem_write := 0.U
+        io.ctrl.mem_read := 0.U
     }
 
     // mem_read
     when (isInstr("STIDR") | isInstr("STIDX") | isInstr("PUSH") | isInstr("CALL") | isInstr("JAL")) {
-        io.ctrl.mem_read := 1.U
+        io.ctrl.mem_write := 1.U
     } otherwise {
-        io.ctrl.mem_read := 0.U
+        io.ctrl.mem_write := 0.U
     }
 
     // rd_src

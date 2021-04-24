@@ -16,15 +16,12 @@ class LyngTopSimulator(dut: LyngTop) extends PeekPokeTester(dut) {
 
     val bis = new BufferedInputStream(getClass().getResourceAsStream("/program.bin"))
     val bArray = Stream.continually(bis.read).takeWhile(-1 !=).map(_.toByte).toList
-    print(bArray)
-    println()
-    print(bArray.length)
     val instructions = bArray.drop(1).zip(bArray).zipWithIndex
         .filter { case ((x, y), i) => i % 2 == 0 }
         .map { case ((x, y), _) => (y << 8) + x }
         .toList
 
-    print(instructions)
+    println("Number of instructions: " + instructions.length.toString())
 
     poke(dut.io.load, 1)
     for((instr, addr) <- instructions.zipWithIndex) {
@@ -39,7 +36,7 @@ class LyngTopSimulator(dut: LyngTop) extends PeekPokeTester(dut) {
     for(i <- 1 to 100) {
         val valid = peek(dut.io.out_valid)
         if(valid == 1) {
-            println(peek(dut.io.out).toString)
+            println("OUT => " + peek(dut.io.out).toString)
         }
         step(1)
     }
