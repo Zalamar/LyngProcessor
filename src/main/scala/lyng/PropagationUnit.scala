@@ -21,13 +21,13 @@ class EXPropagationUnit extends Module {
         val conflict_stall = Output(UInt(1.W))
     })
 
-    val ex_me_conflict = io.ex_me.reg_write & (io.ex_me.reg_write === io.rx_addr).asUInt()
-    val me_wb_conflict = io.me_wb.reg_write & (io.me_wb.reg_write === io.rx_addr).asUInt()
+    val ex_me_conflict = io.ex_me.reg_write & (io.ex_me.rw_addr === io.rx_addr).asUInt()
+    val me_wb_conflict = io.me_wb.reg_write & (io.me_wb.rw_addr === io.rx_addr).asUInt()
     val NO_PROPAGATION = "b00".U
     val EX_EX_PROPAGATION = "b10".U
     val ME_EX_PROPAGATION = "b01".U
 
-    io.conflict_stall := io.ex_me_mem_read & io.ex_me.reg_write & (io.ex_me.reg_write === io.rx_addr).asUInt()
+    io.conflict_stall := io.ex_me_mem_read & io.ex_me.reg_write & (io.ex_me.rw_addr === io.rx_addr).asUInt()
 
     io.prop_rx := NO_PROPAGATION
 
