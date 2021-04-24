@@ -22,12 +22,12 @@ class Extender extends Module {
       io.immediate_out := Cat("b00000000000".U, io.immediate_in(4,0))
     }
   } .elsewhen(io.ext_mode === 2.U) {
-    io.immediate_out := Cat("b00000000".U, io.immediate_in(7,0))
+    io.immediate_out := Cat("b00000000".U, io.immediate_in(10,8), io.immediate_in(4,0))
   } .elsewhen(io.ext_mode === 3.U) {
-    when (io.immediate_in(7) === 1.U) {
-      io.immediate_out := Cat("b11111111".U, io.immediate_in(7,0))
+    when (io.immediate_in(10) === 1.U) {
+      io.immediate_out := Cat("b11111111".U, io.immediate_in(10,8), io.immediate_in(4,0))
     } .otherwise {
-      io.immediate_out := Cat("b00000000".U, io.immediate_in(7,0))
+      io.immediate_out := Cat("b00000000".U, io.immediate_in(10,8), io.immediate_in(4,0))
     }
   } .elsewhen(io.ext_mode === 4.U) {
     io.immediate_out := Cat("b00000".U, io.immediate_in(10,0))

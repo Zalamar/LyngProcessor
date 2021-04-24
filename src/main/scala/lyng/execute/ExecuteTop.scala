@@ -67,19 +67,19 @@ class ExecuteTop extends Module{
 
   io.out.jump := 0.U
   switch(io.ctrl.jmp_mode) {
-    is(1.U) {
+    is(7.U) {
       io.out.jump := 1.U
     }
     is(2.U) {
       io.out.jump := ALU.io.gez
     }
-    is(3.U) {
+    is(5.U) {
       io.out.jump := ALU.io.zero
     }
-    is(4.U) {
+    is(3.U) {
       io.out.jump := !ALU.io.gez | ALU.io.zero
     }
-    is(5.U) {
+    is(4.U) {
       io.out.jump := ALU.io.carry_out
     }
   }
