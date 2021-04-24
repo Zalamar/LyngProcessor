@@ -152,7 +152,7 @@ class LyngTop extends Module {
       * EX Stage
       */
     //ID/EX Outputs -> EX Inputs
-    ex.io.ctrl := id_ex.io.in.ctrl
+    ex.io.ctrl := id_ex.io.out.ctrl
     ex.io.in.rs1 := id_ex.io.out.rs1
     ex.io.in.rs2 := id_ex.io.out.rs2
     ex.io.in.imm := id_ex.io.out.imm
