@@ -9,8 +9,8 @@ class ExecuteIn extends Bundle {
     val rs1 = Input(UInt(16.W))
     val rs2 = Input(UInt(16.W))
     val imm = Input(UInt(11.W))
-    val prop_rs1 = Input(UInt(1.W))
-    val prop_rs2 = Input(UInt(1.W))
+    val prop_rs1 = Input(UInt(2.W))
+    val prop_rs2 = Input(UInt(2.W))
     val ex_forward = Input(UInt(16.W))
     val me_forward = Input(UInt(16.W))
 }
@@ -42,18 +42,18 @@ class ExecuteTop extends Module{
   extender.io.ext_mode := io.ctrl.ext_mode
 
   ALU.io.alu_in1 := io.in.rs1.asSInt()
-  when(io.in.prop_rs1 === "b01".U) {
+  when(io.in.prop_rs1 === 1.U) {
     ALU.io.alu_in1 := io.in.me_forward.asSInt()
-  } .elsewhen(io.in.prop_rs1 === "b10".U) {
+  } .elsewhen(io.in.prop_rs1 === 2.U) {
     ALU.io.alu_in1 := io.in.ex_forward.asSInt()
   }
 
 
   val prop_rs2_output = Wire(Bits())
   prop_rs2_output := io.in.rs2
-  when(io.in.prop_rs2 === "b01".U) {
+  when(io.in.prop_rs2 === 1.U) {
     prop_rs2_output := io.in.me_forward
-  }.elsewhen(io.in.prop_rs2 === "b10".U) {
+  }.elsewhen(io.in.prop_rs2 === 2.U) {
     prop_rs2_output := io.in.ex_forward
   }
 
