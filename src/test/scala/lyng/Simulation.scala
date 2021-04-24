@@ -21,7 +21,7 @@ class LyngTopSimulator(dut: LyngTop) extends PeekPokeTester(dut) {
     print(bArray.length)
     val instructions = bArray.drop(1).zip(bArray).zipWithIndex
         .filter { case ((x, y), i) => i % 2 == 0 }
-        .map { case ((x, y), _) => x << 8 + y }
+        .map { case ((x, y), _) => (x << 8) + y }
         .toList
 
     print(instructions)
