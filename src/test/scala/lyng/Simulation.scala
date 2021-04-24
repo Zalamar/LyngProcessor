@@ -21,7 +21,6 @@ class LyngTopSimulator(dut: LyngTop) extends PeekPokeTester(dut) {
         .map { case ((x, y), _) => (y << 8) + x }
         .toList
 
-    println("Number of instructions: " + instructions.length.toString())
 
     poke(dut.io.load, 1)
     for((instr, addr) <- instructions.zipWithIndex) {
