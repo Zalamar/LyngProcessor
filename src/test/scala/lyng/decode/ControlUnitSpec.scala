@@ -27,7 +27,6 @@ class ControlUnitTester(dut : ControlUnit) extends PeekPokeTester(dut) {
         print(peek(sig.mem_addr_src).toString + ",")
         print(((peek(sig.stack_op) >> 1) & 1).toString + ",")
         print((peek(sig.stack_op) & 1).toString + ",")
-        print(peek(sig.jmp_amt_src).toString + ",")
         print(((peek(sig.jmp_mode) >> 2) & 1).toString + ",")
         print(((peek(sig.jmp_mode) >> 1) & 1).toString + ",")
         print((peek(sig.jmp_mode) & 1).toString + ",")

@@ -12,10 +12,14 @@ class ControlUnit extends Module {
         val ctrl = Output(new ControlUnitSig)
     })
 
+    io.ctrl := 0.U.asTypeOf(new ControlUnitSig)
+
     // helper function to detect instruction based on opcode and func code
     def isInstr(opcodeStr : String) = {
         Mux(io.opcode <= "b00010".U, io.opcode === RefernceVals.op_ref(opcodeStr) & io.func === RefernceVals.func_ref(opcodeStr), io.opcode === RefernceVals.op_ref(opcodeStr))
     }
+
+
 
     // ext_mode
     // 5-bit unsigned   --->  000
@@ -181,12 +185,19 @@ class ControlUnit extends Module {
         io.ctrl.carry_src := 0.U
     }
 
+    when (isInstr("JGEO") | isInstr("JLEO") | isInstr("JEO")) {
+        io.ctrl.rd_addr_src := 1.U
+    } otherwise {
+        io.ctrl.rd_addr_src := 0.U
+    }
+
+    /**
     // jmp_amt_src
     when (isInstr("CALL") | isInstr("JAL") | isInstr("JMP") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JCO") | isInstr("JEO")) {
         io.ctrl.jmp_amt_src := 1.U
     } otherwise {
         io.ctrl.jmp_amt_src := 0.U
-    }
+    }*/
 
     // pc_src
     when (isInstr("JMP") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JCO") | isInstr("JEO")) {

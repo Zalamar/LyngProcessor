@@ -17,6 +17,6 @@ class ControlUnitSig extends Bundle {
     val rd_src = UInt(1.W)
     val reg_write = UInt(1.W)
     val carry_src = UInt(1.W)
-    val jmp_amt_src = UInt(1.W)
     val pc_src = UInt(2.W)
+    val rd_addr_src = UInt(1.W)
 }

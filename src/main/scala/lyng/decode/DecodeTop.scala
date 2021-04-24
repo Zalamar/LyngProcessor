@@ -48,7 +48,7 @@ class DecodeTop extends Module {
     // register file
     val reg_file = Module(new RegFile)
     reg_file.io.rs1_addr := rs1_addr
-    reg_file.io.rs2_addr := rs2_addr
+    reg_file.io.rs2_addr := Mux(control_unit.io.ctrl.rd_addr_src === 1.U, rd_addr, rs2_addr)
     reg_file.io.rd_addr := rd_addr
     reg_file.io.wr_addr := io.in.rw_addr
     reg_file.io.wr_in := io.in.wb_rw_value
