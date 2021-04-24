@@ -15,7 +15,7 @@ class LyngTopSimulator(dut: LyngTop) extends PeekPokeTester(dut) {
     
 
     val bis = new BufferedInputStream(getClass().getResourceAsStream("/program.bin"))
-    val bArray = Stream.continually(bis.read).takeWhile(-1 !=).map(_.toByte).toList
+    val bArray = Stream.continually(bis.read).takeWhile(-1 !=).map(_.toChar).toList
     print(bArray)
     println()
     print(bArray.length)
