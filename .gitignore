@@ -31,4 +31,7 @@ test_run_dir/*
 .vscode/*
 
 
+program.lisa
+src/test/resources/program.bin
+
 # End of https://www.toptal.com/developers/gitignore/api/scala,sbt
