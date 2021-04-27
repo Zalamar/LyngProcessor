@@ -176,8 +176,6 @@ class ControlUnit extends Module {
     is_reg_wr := isInstr("ADD") | isInstr("ADC") | isInstr("SUB") | isInstr("SBB") | isInstr("AND") | isInstr("OR") | isInstr("XOR") | isInstr("NOT") | isInstr("SHFL") | isInstr("SHFA") | isInstr("ADDI") | isInstr("SUBI") | isInstr("MVIH") | isInstr("MVIL") | isInstr("LDIDR") | isInstr("LDIDX") | isInstr("POP")
     when (is_reg_wr === 1.U) {
         io.ctrl.reg_write := 1.U
-    } otherwise {
-        io.ctrl.reg_write := 0.U
     }
 
     // carry_src
@@ -202,9 +200,9 @@ class ControlUnit extends Module {
     }*/
 
     // pc_src
-    when (isInstr("JMP") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JCO") | isInstr("JEO")) {
+    when (isInstr("JMP") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JCO") | isInstr("JEO") |  isInstr("JAL")) {
         io.ctrl.pc_src := "b01".U
-    } .elsewhen (isInstr("CALL") | isInstr("JAL") | isInstr("JMPI")) {
+    } .elsewhen (isInstr("CALL") | isInstr("JMPI")) {
         io.ctrl.pc_src := "b10".U
     } . elsewhen (isInstr("RET")) {
         io.ctrl.pc_src := "b11".U

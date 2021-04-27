@@ -39,6 +39,7 @@ class DecodeTop extends Module {
     val opcode = io.in.instr(15,11)
     val func = io.in.instr(1,0)
 
+
     // control unit
     val control_unit = Module(new ControlUnit)
     control_unit.io.opcode := opcode
@@ -61,5 +62,5 @@ class DecodeTop extends Module {
     io.out.rd_addr := rd_addr
     io.out.imm := imm
     io.out.rs1_addr := rs1_addr
-    io.out.rs2_addr := rs2_addr
+    io.out.rs2_addr := Mux(control_unit.io.ctrl.rd_addr_src === 1.U, rd_addr, rs2_addr)
 }
