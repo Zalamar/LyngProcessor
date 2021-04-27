@@ -16,7 +16,7 @@ class ControlUnit extends Module {
 
     // helper function to detect instruction based on opcode and func code
     def isInstr(opcodeStr : String) = {
-        Mux(io.opcode <= "b00010".U, io.opcode === RefernceVals.op_ref(opcodeStr) & io.func === RefernceVals.func_ref(opcodeStr), io.opcode === RefernceVals.op_ref(opcodeStr))
+        Mux(io.opcode <= "b00010".U && io.opcode >= "b00000".U, io.opcode === RefernceVals.op_ref(opcodeStr) & io.func === RefernceVals.func_ref(opcodeStr), io.opcode === RefernceVals.op_ref(opcodeStr))
     }
 
 

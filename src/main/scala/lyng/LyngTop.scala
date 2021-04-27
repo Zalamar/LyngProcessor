@@ -57,7 +57,7 @@ class LyngTop extends Module {
         val load = Input(UInt(2.W))
         val addr = Input(UInt(17.W))
         val value = Input(UInt(16.W))
-        val out_valid = Output(UInt(16.W))
+        val out_valid = Output(UInt(1.W))
         val out = Output(UInt(16.W))
     })
 
