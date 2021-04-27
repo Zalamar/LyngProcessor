@@ -7,11 +7,7 @@ import scala.collection.immutable.ListMap
 object RefernceVals {
 
   // refernce list of opcodes
-<<<<<<< HEAD
   val op_ref = ListMap("ADD" -> "b00001".U,
-=======
-  val op_ref = ListMap( "ADD" -> "b00001".U,
->>>>>>> 12a7e06a94d7fc738dc4de678faac766b9646d14
                         "ADC" -> "b00001".U,
                         "SUB" -> "b00001".U,
                         "SBB" -> "b00001".U,
@@ -42,12 +38,7 @@ object RefernceVals {
                         "MOVSP" -> "b10111".U,
                         "RET" -> "b11000".U,
                         "STC" -> "b11001".U,
-<<<<<<< HEAD
                         "NOP" -> "b00000".U)
-=======
-                        "NOP" -> "b00000".U}
-  )
->>>>>>> 12a7e06a94d7fc738dc4de678faac766b9646d14
 
   // reference list of func codes
   val func_ref = ListMap("ADD"   -> "b00".U,
