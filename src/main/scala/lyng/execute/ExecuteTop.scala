@@ -18,7 +18,7 @@ class ExecuteIn extends Bundle {
 class ExecuteOut extends Bundle {
     // Outputs
     val jump = Output(UInt(1.W))
-    val jump_amt = Output(UInt(17.W))
+    val jump_amt = Output(UInt(16.W))
     val alu_res = Output(UInt(16.W))
 }
 
@@ -87,6 +87,6 @@ class ExecuteTop extends Module{
   when (io.out.jump === 0.U) {
     io.out.jump_amt := 0.U
   } .otherwise {
-    io.out.jump_amt := (extender.io.immediate_out << 1)
+    io.out.jump_amt := extender.io.immediate_out
   }
 }

@@ -8,9 +8,9 @@ import chisel3.util._
 class MemoryStageIn extends Bundle {
         //Input from EX/ME
         val jump = Input(UInt(1.W))
-        val jump_amt = Input(UInt(17.W))
+        val jump_amt = Input(UInt(16.W))
         val alu_res = Input(UInt(16.W))
-        val pc = Input(UInt(17.W))
+        val pc = Input(UInt(16.W))
         val rd = Input(UInt(16.W))
         val rw_addr = Input(UInt(3.W))
         //propagation
@@ -34,9 +34,9 @@ class MemoryStageOut extends Bundle {
     val rw_addr = Output(UInt(3.W))
 
     //Outputs to PC
-    val return_addr = Output(UInt(17.W))
-    val call = Output(UInt(17.W))
-    val jump = Output(UInt(17.W))
+    val return_addr = Output(UInt(16.W))
+    val call = Output(UInt(16.W))
+    val jump = Output(UInt(16.W))
 }
 
 class MemoryTop extends Module {
@@ -56,9 +56,9 @@ class MemoryTop extends Module {
     val mem_data_in_no_prop = Wire(UInt(16.W))
 
     //Outputs to PC calc unit    
-    io.out.call := io.in.rd << 1
+    io.out.call := io.in.rd
     io.out.jump := (io.in.pc.asSInt + io.in.jump_amt.asSInt).asUInt
-    io.out.return_addr := io.in.data_out << 1
+    io.out.return_addr := io.in.data_out
 
     //Other Signals
     io.out.alu_res := io.in.alu_res
@@ -90,7 +90,7 @@ class MemoryTop extends Module {
 
     //Memory 
     io.out.addr := Mux(io.ctrl.mem_addr_src === 1.U, sp_out, io.in.alu_res.asUInt)
-    mem_data_in_no_prop := Mux(io.ctrl.mem_data_src === 1.U, io.in.pc >> 1, io.in.rd)
+    mem_data_in_no_prop := Mux(io.ctrl.mem_data_src === 1.U, io.in.pc, io.in.rd)
     io.out.data_in := Mux(io.in.prop_ME_ME === 1.U, io.in.rw_value.asUInt, mem_data_in_no_prop)
 }
 

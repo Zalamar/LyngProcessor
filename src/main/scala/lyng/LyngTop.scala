@@ -8,7 +8,7 @@ import lyng.execute.ExecuteTop
 
 
 class IF_IDSig extends Bundle {
-    val pc = UInt(17.W)
+    val pc = UInt(16.W)
     val instr = UInt(16.W)
 }
 
@@ -21,7 +21,7 @@ class ID_EXSig extends Bundle {
     val imm = UInt(11.W)
 
     //Other values
-    val pc = UInt(17.W)
+    val pc = UInt(16.W)
     val rd = UInt(16.W)
     val rs1_addr = UInt(3.W)
     val rs2_addr = UInt(3.W)
@@ -33,9 +33,9 @@ class EX_MESig extends Bundle {
 
     val ctrl = new ControlUnitSig
 
-    val pc = UInt(17.W)
+    val pc = UInt(16.W)
     val jump = UInt(1.W)
-    val jump_amt = UInt(17.W)
+    val jump_amt = UInt(16.W)
     val alu_res = UInt(16.W)
     val rd = UInt(16.W)
     val rw_addr = UInt(3.W)
@@ -55,7 +55,7 @@ class ME_WBSig extends Bundle {
 class LyngTop extends Module {
     val io = IO(new Bundle{
         val load = Input(UInt(2.W))
-        val addr = Input(UInt(17.W))
+        val addr = Input(UInt(16.W))
         val value = Input(UInt(16.W))
         val out_valid = Output(UInt(1.W))
         val out = Output(UInt(16.W))
@@ -67,7 +67,7 @@ class LyngTop extends Module {
     val data_mem = Module(new Memory(16, 8, true))
 
     //Pipeline interstage register instantiation
-    val pc = Module(new PipelineReg(() => UInt(17.W)))
+    val pc = Module(new PipelineReg(() => UInt(16.W)))
     val if_id = Module(new PipelineReg(() => new IF_IDSig))
     val id_ex = Module(new PipelineReg(() => new ID_EXSig))
     val ex_me = Module(new PipelineReg(() => new EX_MESig))
@@ -91,24 +91,24 @@ class LyngTop extends Module {
     *    IF Stage
     */
     //IF next_pc calculation
-    val next_pc = Wire(UInt(17.W))
+    val next_pc = Wire(UInt(16.W))
     pc.io.in := next_pc
 
 
-    next_pc := pc.io.out + 2.U
+    next_pc := pc.io.out + 1.U
     when(ex_me.io.out.jump === 1.U) {
         switch(ex_me.io.out.ctrl.pc_src) {
             is("b00".U) {
-                next_pc := pc.io.out + 2.U
+                next_pc := pc.io.out + 1.U
             }
             is("b01".U) {
-                next_pc := me.io.out.jump + 2.U
+                next_pc := me.io.out.jump + 1.U
             }
             is("b10".U) {
                 next_pc := me.io.out.call
             }
             is("b11".U) {
-                next_pc := me.io.out.return_addr + 2.U
+                next_pc := me.io.out.return_addr + 1.U
             }
         }
     }
