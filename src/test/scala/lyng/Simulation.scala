@@ -24,7 +24,7 @@ class LyngTopSimulator(dut: LyngTop) extends PeekPokeTester(dut) {
 
     poke(dut.io.load, 1)
     for((instr, addr) <- instructions.zipWithIndex) {
-        poke(dut.io.addr, addr << 1)
+        poke(dut.io.addr, addr)
         poke(dut.io.value, instr)
         step(1)
     }
@@ -32,7 +32,7 @@ class LyngTopSimulator(dut: LyngTop) extends PeekPokeTester(dut) {
     poke(dut.io.load, 0)
     //Execute
     var end = false
-    for(i <- 1 to 100) {
+    for(i <- 1 to 300) {
         val valid = peek(dut.io.out_valid)
         if(valid == 1) {
             println("OUT => " + peek(dut.io.out).toString)

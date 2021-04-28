@@ -9,7 +9,6 @@ import lyng.execute.ExecuteTop
 
 class IF_IDSig extends Bundle {
     val pc = UInt(16.W)
-    val instr = UInt(16.W)
 }
 
 class ID_EXSig extends Bundle {
@@ -47,8 +46,8 @@ class ME_WBSig extends Bundle {
 
     val ctrl = new ControlUnitSig
 
+    val jump = UInt(1.W)
     val rw_addr = UInt(3.W)
-    val data_out = UInt(16.W)
     val alu_res = UInt(16.W)
 }
 
@@ -63,8 +62,8 @@ class LyngTop extends Module {
 
     val out_addr = "hFFFE".U
 
-    val instr_mem = Module(new Memory(17, 8, true))
-    val data_mem = Module(new Memory(16, 8, true))
+    val instr_mem = Module(new Memory(16, 16))
+    val data_mem = Module(new Memory(16, 16))
 
     //Pipeline interstage register instantiation
     val pc = Module(new PipelineReg(() => UInt(16.W)))
@@ -92,31 +91,40 @@ class LyngTop extends Module {
     */
     //IF next_pc calculation
     val next_pc = Wire(UInt(16.W))
+    val curr_pc = Wire(UInt(16.W))
     pc.io.in := next_pc
 
-
+    //Default Values
     next_pc := pc.io.out + 1.U
+    curr_pc := pc.io.out
+    //Branch in ME Stage
     when(ex_me.io.out.jump === 1.U) {
         switch(ex_me.io.out.ctrl.pc_src) {
             is("b00".U) {
-                next_pc := pc.io.out + 1.U
+                next_pc := curr_pc + 1.U
             }
             is("b01".U) {
                 next_pc := me.io.out.jump + 1.U
             }
             is("b10".U) {
                 next_pc := me.io.out.call
-            }
+            } /*
             is("b11".U) {
                 next_pc := me.io.out.return_addr + 1.U
-            }
+            } */
         }
+    }
+
+    //Branch in WB State (with PC OVERRIDE)
+    when(me_wb.io.out.ctrl.pc_src === "b11".U && me_wb.io.out.jump === 1.U) {
+      curr_pc := me.io.out.return_addr + 1.U
+      next_pc := me.io.out.return_addr + 2.U
     }
 
 
     instr_mem.io.mem_read  := 1.U
     instr_mem.io.mem_write := 0.U
-    instr_mem.io.addr := pc.io.out
+    instr_mem.io.addr := curr_pc
     when(io.load === "b01".U) {
         instr_mem.io.mem_read  := 0.U
         instr_mem.io.mem_write := 1.U
@@ -124,15 +132,22 @@ class LyngTop extends Module {
     }
     instr_mem.io.data_in := io.value
 
-    if_id.io.in.pc := pc.io.out
-    if_id.io.in.instr := instr_mem.io.data_out
+    if_id.io.in.pc := curr_pc
 
 
     /**
       * ID Stage
       */
     //IF_ID outs -> ID inputs
-    id.io.in.instr := if_id.io.out.instr
+    id.io.in.instr := instr_mem.io.data_out
+    switch(RegNext(stall.io.if_id_mode)) {
+      is("b10".U) {
+        id.io.in.instr := 0.U
+      }
+      is("b01".U) {
+        id.io.in.instr := RegNext(instr_mem.io.data_out)
+      }
+    }
     //WB -> register file out
     id.io.in.rw_addr := me_wb.io.out.rw_addr
     id.io.in.wb_rw_value := rw_value
@@ -198,8 +213,8 @@ class LyngTop extends Module {
     //ME Outputs -> ME_WB inputs
     me_wb.io.in.ctrl := ex_me.io.out.ctrl
     me_wb.io.in.rw_addr := me.io.out.rw_addr
-    me_wb.io.in.data_out := me.io.out.data_out
     me_wb.io.in.alu_res := me.io.out.alu_res
+    me_wb.io.in.jump := ex_me.io.out.jump //Directly from EX_ME
 
     //Propagation
     me.io.in.prop_ME_ME := me_unit.io.prop_ME_ME
@@ -209,7 +224,7 @@ class LyngTop extends Module {
       * WB Stage
       */
     rw_value := Mux(me_wb.io.out.ctrl.rd_src === true.B,
-        me_wb.io.out.data_out, //1
+        me.io.out.data_out, //1
         me_wb.io.out.alu_res   //0
     )
 
@@ -231,8 +246,7 @@ class LyngTop extends Module {
     ex_rs2_unit.io.ex_me_mem_read := ex_me.io.out.ctrl.mem_read
     ex_rs2_unit.io.rx_addr := id_ex.io.out.rs2_addr
     //ME->ME
-    me_unit.io.me_wb_mem_read := me_wb.io.out.ctrl.mem_read
-    me_unit.io.ex_me_mem_write := ex_me.io.out.ctrl.mem_write
+    me_unit.io.me_wb_reg_write := me_wb.io.out.ctrl.reg_write
     me_unit.io.me_wb_rw_addr := me_wb.io.out.rw_addr
     me_unit.io.ex_me_rw_addr := ex_me.io.out.rw_addr
 
@@ -246,6 +260,7 @@ class LyngTop extends Module {
     stall.io.data_mem_read := 1.U //ex_me.io.out.ctrl.mem_read
     stall.io.data_mem_valid := data_mem.io.valid
     stall.io.conflict_stall := ex_rs1_unit.io.conflict_stall | ex_rs2_unit.io.conflict_stall
+    stall.io.load_mode := (io.load === "b01".U).asUInt()
     //Stall unit out (-> Pipeline Registers control)
     pc.io.ctrl := Mux(io.load === "b01".U, "b10".U, stall.io.pc_mode)
     if_id.io.ctrl := stall.io.if_id_mode

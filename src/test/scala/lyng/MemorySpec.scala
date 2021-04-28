@@ -55,7 +55,7 @@ class MemoryTester(dut: Memory) extends PeekPokeTester(dut) {
 // test spec
 class MemorySpec extends FlatSpec with Matchers {
   "Tester" should "pass" in {
-      Driver.execute(Array("--generate-vcd-output", "on"), () => new Memory(16, 8, true)) {
+      Driver.execute(Array("--generate-vcd-output", "on"), () => new Memory(16, 8)) {
           c => new MemoryTester(c)
       } should be (true)
   }

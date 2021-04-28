@@ -12,6 +12,7 @@ class StallUnit extends Module {
         val data_mem_read = Input(UInt(1.W))
         val data_mem_valid = Input(UInt(1.W))
         val conflict_stall = Input(UInt(1.W))
+        val load_mode = Input(UInt(1.W))
 
         val pc_mode = Output(UInt(2.W))
         val if_id_mode = Output(UInt(2.W))
@@ -29,8 +30,15 @@ class StallUnit extends Module {
 
 
     val mem_stall = (io.instr_mem_read & !io.instr_mem_valid) | (io.data_mem_read & !io.data_mem_valid)
-
-    when(mem_stall === 1.U) {
+    when(io.load_mode === 1.U) {
+        io.pc_mode := NOP
+        io.if_id_mode := NOP
+        io.id_ex_mode := NOP 
+        io.ex_me_mode := NOP 
+        io.me_wb_mode := NOP
+        io.error := 0.U
+    }
+    .elsewhen(mem_stall === 1.U) {
         io.pc_mode := HOLD
         io.if_id_mode := HOLD
         io.id_ex_mode := HOLD 

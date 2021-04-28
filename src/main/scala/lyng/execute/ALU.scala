@@ -85,9 +85,9 @@ class ALU extends Module {
   } .elsewhen(io.alu_opcode === 13.U) { // SHIFTR
     s_alu_out := (s_alu_in1.asUInt() >> s_alu_in2.asUInt()).asSInt()
   } .elsewhen(io.alu_opcode === 14.U) { // MVIH
-    s_alu_out := (s_alu_in2.asUInt() << 8).asSInt()
+    s_alu_out := ((s_alu_in2.asUInt() << 8).asSInt() | (s_alu_in1 & "h00FF".U.asSInt())).asSInt()
   } .elsewhen(io.alu_opcode === 15.U) { // MVIL
-    s_alu_out := s_alu_in2
+    s_alu_out := ((s_alu_in1 & "hFF00".U.asSInt()) | s_alu_in2).asSInt()  
   }
 
 }

@@ -200,9 +200,9 @@ class ControlUnit extends Module {
     }*/
 
     // pc_src
-    when (isInstr("JMP") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JCO") | isInstr("JEO") |  isInstr("JAL")) {
+    when (isInstr("JMPI") | isInstr("JGEO") | isInstr("JLEO") | isInstr("JCO") | isInstr("JEO") |  isInstr("JAL")) {
         io.ctrl.pc_src := "b01".U
-    } .elsewhen (isInstr("CALL") | isInstr("JMPI")) {
+    } .elsewhen (isInstr("CALL") | isInstr("JMP")) {
         io.ctrl.pc_src := "b10".U
     } . elsewhen (isInstr("RET")) {
         io.ctrl.pc_src := "b11".U

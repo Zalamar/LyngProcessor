@@ -40,12 +40,11 @@ class EXPropagationUnit extends Module {
 
 class MEPropagationUnit extends Module {
     val io = IO(new Bundle{
-        val me_wb_mem_read = Input(UInt(1.W))
-        val ex_me_mem_write = Input(UInt(1.W))
+        val me_wb_reg_write = Input(UInt(1.W))
         val ex_me_rw_addr = Input(UInt(1.W))
         val me_wb_rw_addr = Input(UInt(1.W))
         val prop_ME_ME = Output(UInt(1.W))
     })
 
-    io.prop_ME_ME := io.me_wb_mem_read & io.ex_me_mem_write & (io.ex_me_rw_addr === io.me_wb_rw_addr).asUInt()
+    io.prop_ME_ME := io.me_wb_reg_write & (io.ex_me_rw_addr === io.me_wb_rw_addr).asUInt()
 }

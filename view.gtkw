@@ -1,0 +1,158 @@
+[*]
+[*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
+[*] Wed Apr 28 01:04:22 2021
+[*]
+[dumpfile] "/home/dario/MEGAsync/Esami/ACA/LyngProcessor/latest.vcd"
+[dumpfile_mtime] "Wed Apr 28 01:03:18 2021"
+[dumpfile_size] 7557480
+[savefile] "/home/dario/MEGAsync/Esami/ACA/LyngProcessor/view.gtkw"
+[timestart] 152
+[size] 1000 600
+[pos] 515 174
+*-6.000000 152 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] LyngTop.
+[treeopen] LyngTop.id.
+[treeopen] LyngTop.instr_mem.
+[treeopen] LyngTop.instr_mem.data.
+[sst_width] 306
+[signals_width] 389
+[sst_expanded] 1
+[sst_vpaned_height] 149
+@28
+LyngTop.clock
+LyngTop.reset
+LyngTop.io_load[1:0]
+@24
+LyngTop.pc.io_in[15:0]
+LyngTop.pc.io_out[15:0]
+LyngTop.data_mem.io_data_out[15:0]
+@28
+[color] 2
+LyngTop.ex_me.io_out_ctrl_pc_src[1:0]
+[color] 2
+LyngTop.me_wb.io_out_ctrl_pc_src[1:0]
+[color] 2
+LyngTop.me_wb.io_out_jump
+@24
+[color] 1
+LyngTop.curr_pc[15:0]
+@200
+-
+@28
+LyngTop.if_id.io_ctrl[1:0]
+@24
+LyngTop.if_id.io_out_pc[15:0]
+@22
+LyngTop.id.io_in_instr[15:0]
+@28
+[color] 2
+LyngTop.id.io_out_ctrl_reg_write
+[color] 2
+LyngTop.id.io_out_ctrl_alu_src
+[color] 2
+LyngTop.id.io_out_ctrl_mem_read
+[color] 2
+LyngTop.id.io_out_ctrl_mem_write
+[color] 2
+LyngTop.id.io_out_ctrl_jmp_mode[2:0]
+[color] 2
+LyngTop.id.io_out_ctrl_pc_src[1:0]
+[color] 2
+LyngTop.id.io_out_ctrl_stack_op[1:0]
+@22
+LyngTop.id.reg_file.register_1[15:0]
+LyngTop.id.reg_file.register_7[15:0]
+@28
+LyngTop.id.io_out_rs1_addr[2:0]
+LyngTop.id.io_out_rs2_addr[2:0]
+@200
+-
+@28
+LyngTop.id_ex.io_ctrl[1:0]
+@24
+LyngTop.id_ex.io_out_pc[15:0]
+@28
+LyngTop.ex.io_out_jump
+[color] 2
+LyngTop.id_ex.io_out_ctrl_reg_write
+@22
+[color] 2
+LyngTop.ex.io_ctrl_alu_op[3:0]
+@28
+[color] 2
+LyngTop.id_ex.reg_ctrl_alu_src
+[color] 2
+LyngTop.id_ex.reg_ctrl_jmp_mode[2:0]
+[color] 2
+LyngTop.id_ex.io_out_ctrl_pc_src[1:0]
+[color] 2
+LyngTop.id_ex.reg_ctrl_stack_op[1:0]
+@22
+LyngTop.ex.io_out_jump_amt[15:0]
+LyngTop.ex.io_out_alu_res[15:0]
+@28
+LyngTop.ex_rs1_unit.io_prop_rx[1:0]
+LyngTop.ex_rs2_unit.io_prop_rx[1:0]
+@200
+-MEM
+@28
+LyngTop.ex_me.io_ctrl[1:0]
+@24
+LyngTop.ex_me.io_out_pc[15:0]
+@28
+[color] 2
+LyngTop.ex_me.io_out_ctrl_reg_write
+[color] 2
+LyngTop.ex_me.io_out_ctrl_mem_read
+[color] 2
+LyngTop.ex_me.io_out_ctrl_mem_write
+@22
+LyngTop.me.io_in_rd[15:0]
+LyngTop.me.actual_rd[15:0]
+[color] 7
+LyngTop.data_mem.io_addr[15:0]
+[color] 7
+LyngTop.data_mem.io_data_in[15:0]
+[color] 7
+LyngTop.data_mem.io_data_out[15:0]
+@28
+[color] 2
+LyngTop.ex_me.io_out_ctrl_mem_addr_src
+[color] 2
+LyngTop.ex_me.io_out_ctrl_mem_data_src
+[color] 2
+LyngTop.ex_me.io_out_ctrl_stack_op[1:0]
+@22
+LyngTop.me.io_in_rd[15:0]
+[color] 1
+LyngTop.me.sp_out[15:0]
+@28
+[color] 3
+LyngTop.io_out_valid
+@22
+[color] 3
+LyngTop.io_out[15:0]
+@28
+LyngTop.ex_me.io_out_jump
+LyngTop.ex_me.reg_ctrl_pc_src[1:0]
+@24
+LyngTop.me.io_out_jump[15:0]
+LyngTop.me.io_out_call[15:0]
+LyngTop.me.io_out_return_addr[15:0]
+@28
+LyngTop.me.io_in_prop_ME_ME
+@200
+-WB
+@29
+[color] 2
+LyngTop.id.reg_file.io_reg_write
+@28
+LyngTop.id.reg_file.io_wr_addr[2:0]
+@22
+LyngTop.id.reg_file.io_wr_in[15:0]
+@200
+-Conflict
+@28
+LyngTop.ex_rs1_unit.io_rx_addr[2:0]
+[pattern_trace] 1
+[pattern_trace] 0

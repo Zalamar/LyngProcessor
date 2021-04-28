@@ -53,10 +53,11 @@ class MemoryTop extends Module {
 
     //Internal Signals
     val sp_out = Wire(UInt(16.W))
-    val mem_data_in_no_prop = Wire(UInt(16.W))
+
+    val actual_rd = Mux(io.in.prop_ME_ME === 1.U, io.in.rw_value, io.in.rd)
 
     //Outputs to PC calc unit    
-    io.out.call := io.in.rd
+    io.out.call := actual_rd
     io.out.jump := (io.in.pc.asSInt + io.in.jump_amt.asSInt).asUInt
     io.out.return_addr := io.in.data_out
 
@@ -74,7 +75,7 @@ class MemoryTop extends Module {
             stack_pointer := sp_out
         }
         is("b01".U) { //MOVSP
-            stack_pointer := io.in.rd
+            stack_pointer := actual_rd
             sp_out := stack_pointer
         }
         is("b10".U) { //PUSH
@@ -90,8 +91,7 @@ class MemoryTop extends Module {
 
     //Memory 
     io.out.addr := Mux(io.ctrl.mem_addr_src === 1.U, sp_out, io.in.alu_res.asUInt)
-    mem_data_in_no_prop := Mux(io.ctrl.mem_data_src === 1.U, io.in.pc, io.in.rd)
-    io.out.data_in := Mux(io.in.prop_ME_ME === 1.U, io.in.rw_value.asUInt, mem_data_in_no_prop)
+    io.out.data_in := Mux(io.ctrl.mem_data_src === 1.U, io.in.pc, actual_rd)
 }
 
 /**

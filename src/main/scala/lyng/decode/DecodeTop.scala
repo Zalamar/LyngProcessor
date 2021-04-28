@@ -31,20 +31,25 @@ class DecodeTop extends Module {
         val out = new DecodeOut
     })
 
+
+    val rs1_addr = Wire(UInt(3.W))
     // spliting in_instruction
-    val rs1_addr = io.in.instr(10,8)
+    rs1_addr := io.in.instr(10,8)
     val rs2_addr = io.in.instr(4,2)
     val rd_addr = io.in.instr(7,5)
     val imm = io.in.instr(10,0)
     val opcode = io.in.instr(15,11)
     val func = io.in.instr(1,0)
-
-
     // control unit
     val control_unit = Module(new ControlUnit)
     control_unit.io.opcode := opcode
     control_unit.io.func := func
     io.out.ctrl := control_unit.io.ctrl
+    //wire remapping (for MVIL MVIHsì)
+    when(control_unit.io.ctrl.alu_op(3,1) === "b111".U) { //WHen move
+        rs1_addr := rd_addr //remap rs1 to rd
+    }
+
 
     // register file
     val reg_file = Module(new RegFile)
