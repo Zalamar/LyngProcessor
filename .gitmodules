@@ -1,0 +1,3 @@
+[submodule "lyng-assembler"]
+	path = lyng-assembler
+	url = https://github.com/garnagar/lyng-assembler.git
