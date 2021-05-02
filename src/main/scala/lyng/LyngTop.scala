@@ -83,8 +83,10 @@ class LyngTop extends Module {
     //Stall and Propagation Units
     val ex_rs1_unit = Module(new EXPropagationUnit)
     val ex_rs2_unit = Module(new EXPropagationUnit)
+    val ex_rd_unit = Module(new EXPropagationUnit)
     val me_unit = Module(new MEPropagationUnit)
     val stall = Module(new StallUnit)
+
 
     /*
     *    IF Stage
@@ -171,9 +173,11 @@ class LyngTop extends Module {
     ex.io.in.rs1 := id_ex.io.out.rs1
     ex.io.in.rs2 := id_ex.io.out.rs2
     ex.io.in.imm := id_ex.io.out.imm
+    ex.io.in.rd  := id_ex.io.out.rd
     //Propagation inputs
     ex.io.in.prop_rs1 := ex_rs1_unit.io.prop_rx
     ex.io.in.prop_rs2 := ex_rs2_unit.io.prop_rx
+    ex.io.in.prop_rd  := ex_rd_unit.io.prop_rx 
     ex.io.in.ex_forward := ex_me.io.out.alu_res
     ex.io.in.me_forward := rw_value
     //EX Outputs -> EX/ME Inputs
@@ -181,11 +185,12 @@ class LyngTop extends Module {
     ex_me.io.in.jump := ex.io.out.jump
     ex_me.io.in.jump_amt := ex.io.out.jump_amt
     ex_me.io.in.alu_res := ex.io.out.alu_res
+    ex_me.io.in.rd := ex.io.out.rd
     //ID/EX -> EX/ME Direct connections
     ex_me.io.in.ctrl := id_ex.io.out.ctrl
     ex_me.io.in.pc := id_ex.io.out.pc
     ex_me.io.in.rw_addr := id_ex.io.out.rw_addr
-    ex_me.io.in.rd := id_ex.io.out.rd
+    
 
 
 
@@ -238,13 +243,20 @@ class LyngTop extends Module {
     ex_rs1_unit.io.me_wb.rw_addr := me_wb.io.out.rw_addr
     ex_rs1_unit.io.ex_me_mem_read := ex_me.io.out.ctrl.mem_read
     ex_rs1_unit.io.rx_addr := id_ex.io.out.rs1_addr
-    //Rs EX->EX ME->EX
+    //Rs2 EX->EX ME->EX
     ex_rs2_unit.io.ex_me.reg_write := ex_me.io.out.ctrl.reg_write
     ex_rs2_unit.io.ex_me.rw_addr := ex_me.io.out.rw_addr
     ex_rs2_unit.io.me_wb.reg_write := me_wb.io.out.ctrl.reg_write
     ex_rs2_unit.io.me_wb.rw_addr := me_wb.io.out.rw_addr
     ex_rs2_unit.io.ex_me_mem_read := ex_me.io.out.ctrl.mem_read
     ex_rs2_unit.io.rx_addr := id_ex.io.out.rs2_addr
+    //Rd EX->EX ME->EX
+    ex_rd_unit.io.ex_me.reg_write := ex_me.io.out.ctrl.reg_write
+    ex_rd_unit.io.ex_me.rw_addr := ex_me.io.out.rw_addr
+    ex_rd_unit.io.me_wb.reg_write := me_wb.io.out.ctrl.reg_write
+    ex_rd_unit.io.me_wb.rw_addr := me_wb.io.out.rw_addr
+    ex_rd_unit.io.ex_me_mem_read := ex_me.io.out.ctrl.mem_read
+    ex_rd_unit.io.rx_addr := id_ex.io.out.rw_addr
     //ME->ME
     me_unit.io.me_wb_reg_write := me_wb.io.out.ctrl.reg_write
     me_unit.io.me_wb_rw_addr := me_wb.io.out.rw_addr
@@ -253,13 +265,17 @@ class LyngTop extends Module {
     /**
       * STALL UNIT
       */
+    val rd_usage = 
+      (id_ex.io.out.ctrl.mem_write === 1.U & id_ex.io.out.ctrl.mem_data_src === 0.U) | //Rd used as data to write
+      (id_ex.io.out.ctrl.stack_op === "b01".U) | //Rd used as new stack pointer
+      (id_ex.io.out.ctrl.pc_src === "b10".U)
     stall.io.ex_jump := ex.io.out.jump
     stall.io.ex_me_jump := ex_me.io.out.jump
     stall.io.instr_mem_read := 1.U
     stall.io.instr_mem_valid := instr_mem.io.valid
     stall.io.data_mem_read := 1.U //ex_me.io.out.ctrl.mem_read
     stall.io.data_mem_valid := data_mem.io.valid
-    stall.io.conflict_stall := ex_rs1_unit.io.conflict_stall | ex_rs2_unit.io.conflict_stall
+    stall.io.conflict_stall := ex_rs1_unit.io.conflict_stall | ex_rs2_unit.io.conflict_stall | (ex_rd_unit.io.conflict_stall & rd_usage)
     stall.io.load_mode := (io.load === "b01".U).asUInt()
     //Stall unit out (-> Pipeline Registers control)
     pc.io.ctrl := Mux(io.load === "b01".U, "b10".U, stall.io.pc_mode)

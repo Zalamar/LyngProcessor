@@ -8,9 +8,11 @@ class ExecuteIn extends Bundle {
     // Registers
     val rs1 = Input(UInt(16.W))
     val rs2 = Input(UInt(16.W))
+    val rd  = Input(UInt(2.W))
     val imm = Input(UInt(11.W))
     val prop_rs1 = Input(UInt(2.W))
     val prop_rs2 = Input(UInt(2.W))
+    val prop_rd = Input(UInt(2.W))
     val ex_forward = Input(UInt(16.W))
     val me_forward = Input(UInt(16.W))
 }
@@ -20,6 +22,7 @@ class ExecuteOut extends Bundle {
     val jump = Output(UInt(1.W))
     val jump_amt = Output(UInt(16.W))
     val alu_res = Output(UInt(16.W))
+    val rd = Output(UInt(16.W))
 }
 
 
@@ -55,6 +58,13 @@ class ExecuteTop extends Module{
     prop_rs2_output := io.in.me_forward
   }.elsewhen(io.in.prop_rs2 === 2.U) {
     prop_rs2_output := io.in.ex_forward
+  }
+
+  io.out.rd := io.in.rd
+  when(io.in.prop_rd === 1.U) {
+    io.out.rd := io.in.me_forward
+  }.elsewhen(io.in.prop_rd === 2.U) {
+    io.out.rd := io.in.ex_forward
   }
 
   when (io.ctrl.alu_src === 0.U) {
