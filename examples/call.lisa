@@ -1,14 +1,15 @@
-NOP
-MVIH $1,255
-MVIL $1,252
-MOVSP $1
-PUSH $1
-ADDI $1,$0,3
-JAL 5
-STIDR $1,$0,-2
-JAL 3
-STIDR $1,$0,-2
-JAL 1
-STIDR $1,$0,-2
-ADD $1,$1,$1
-RET
+            NOP
+            MVIH $1,255
+            MVIL $1,252
+            MOVSP $1
+            PUSH $1
+            ADDI $1,$0,3
+            JAL doubleit
+            STIDR $1,$0,-2
+            JAL doubleit
+            STIDR $1,$0,-2
+            JAL doubleit
+            STIDR $1,$0,-2
+            JMPI 10
+doubleit:   ADD $1,$1,$1     
+            RET
