@@ -8,7 +8,7 @@ class ExecuteIn extends Bundle {
     // Registers
     val rs1 = Input(UInt(16.W))
     val rs2 = Input(UInt(16.W))
-    val rd  = Input(UInt(2.W))
+    val rd  = Input(UInt(16.W))
     val imm = Input(UInt(11.W))
     val prop_rs1 = Input(UInt(2.W))
     val prop_rs2 = Input(UInt(2.W))
