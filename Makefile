@@ -1,14 +1,13 @@
 SBT = sbt
 PY = python3
 PROGRAM = program.lisa
-.PHONY = vcd clean_vcd install_assembler run_assembler generate test simulate vcd
+.PHONY = vcd clean_vcd install_assembler run_assembler generate test simulate vcd src/test/resources/program.bin
 
 
 
 clean:
 	rm -f src/test/resources/program.bin
 	$(SBT) clean
-	git clean -fd
 	echo "---CLEANED ALL TEMP FILES (excluding .vcd traces)---"
 
 clean_vcd:
