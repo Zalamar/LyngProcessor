@@ -29,8 +29,8 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
   poke(dut.io.in.imm, 0)
   poke(dut.io.in.ex_forward, 0)
   poke(dut.io.in.me_forward, 0)
-  poke(dut.io.in.prop_rs1, 2)
-  poke(dut.io.in.prop_rs2, 2)
+  poke(dut.io.in.prop_rs1, 0)
+  poke(dut.io.in.prop_rs2, 0)
   poke(dut.io.ctrl.alu_src, 0)
   poke(dut.io.ctrl.ext_mode, 0)
   poke(dut.io.ctrl.jmp_mode, 0)
@@ -45,25 +45,23 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs2, b)
     poke(dut.io.ctrl.alu_op, 2)
     result = a+b
-    if (result > 32767) {result = result - 65536}
-    else if (result < -32768) {result = result + 65536}
-    expect(dut.io.out.alu_res, result)
+    if (result < 0) {result = result + 65536}
+    expect(dut.io.out.alu_res,  result)
   }
 
   // ADC
   if (debug) {print("Testing ADC")}
   result = 21845 + 21845
-  poke(dut.io.in.rs1, 21845.S)
-  poke(dut.io.in.rs2, 21845.S)
+  poke(dut.io.in.rs1, 21845)
+  poke(dut.io.in.rs2, 21845)
   poke(dut.io.ctrl.alu_op, 2)
-  if (result > 32767) {result = result - 65536}
-  else if (result < -32768) {result = result + 65536}
+  if (result < 0) {result = result + 65536}
   step(1)
   expect(dut.io.out.alu_res, result)
 
   result = 1021
-  poke(dut.io.in.rs1, 382.S)
-  poke(dut.io.in.rs2, 638.S)
+  poke(dut.io.in.rs1, 382)
+  poke(dut.io.in.rs2, 638)
   poke(dut.io.ctrl.alu_op, 3)
   expect(dut.io.out.alu_res, result)
   step(1)
@@ -78,8 +76,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs2, b)
     poke(dut.io.ctrl.alu_op, 4)
     result = a-b
-    if (result > 32767) {result = result - 65536}
-    else if (result < -32768) {result = result + 65536}
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.alu_res, result)
   }
 
@@ -89,8 +86,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
   poke(dut.io.in.rs1, -21845)
   poke(dut.io.in.rs2, 21845)
   poke(dut.io.ctrl.alu_op, 4)
-  if (result > 32767) {result = result - 65536}
-  else if (result < -32768) {result = result + 65536}
+  if (result < 0) {result = result + 65536}
   expect(dut.io.out.alu_res, result)
   step(1)
 
@@ -111,6 +107,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs2, b)
     poke(dut.io.ctrl.alu_op, 8)
     result = a&b
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.alu_res, result)
   }
 
@@ -124,6 +121,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs2, b)
     poke(dut.io.ctrl.alu_op, 9)
     result = a|b
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.alu_res, result)
   }
 
@@ -137,6 +135,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs2, b)
     poke(dut.io.ctrl.alu_op, 10)
     result = a^b
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.alu_res, result)
   }
 
@@ -149,6 +148,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs2, 0)
     poke(dut.io.ctrl.alu_op, 11)
     result = ~a
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.alu_res, result)
   }
 
@@ -162,9 +162,9 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs2, b)
     poke(dut.io.ctrl.alu_op, 12)
     result = a << b
-    if (result > 32767) {result = result - 65536}
-    else if (result < -32768) {result = result + 65536}
-    expect(dut.io.out.alu_res, result.toShort)
+    while (result >= 65536) {result = result - 65536}
+    while (result < 0) {result = result + 65536}
+    expect(dut.io.out.alu_res, result)
   }
 
   // SHIFTR
@@ -177,9 +177,9 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs2, b)
     poke(dut.io.ctrl.alu_op, 13)
     result = a.toChar >> b
-    while (result > 32767) {result = result - 65536}
-    while (result < -32768) {result = result + 65536}
-    expect(dut.io.out.alu_res, result.toChar)
+    while (result > 65536) {result = result - 65536}
+    while (result < 0) {result = result + 65536}
+    expect(dut.io.out.alu_res, result)
   }
 
   // ADDI
@@ -193,8 +193,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.imm, b)
     poke(dut.io.ctrl.alu_op, 2)
     result = a+b
-    if (result > 32767) {result = result - 65536}
-    else if (result < -32768) {result = result + 65536}
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.alu_res, result)
   }
   poke(dut.io.ctrl.alu_src, 0)
@@ -210,8 +209,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.imm, b)
     poke(dut.io.ctrl.alu_op, 4)
     result = a-b
-    if (result > 32767) {result = result - 65536}
-    else if (result < -32768) {result = result + 65536}
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.alu_res, result)
   }
   poke(dut.io.ctrl.alu_src, 0)
@@ -221,13 +219,15 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
   poke(dut.io.ctrl.alu_src, 1)
   poke(dut.io.ctrl.ext_mode, 2)
   for (i <- 1 to testSize) {
-    a = r.nextInt(256)
+    a = start + r.nextInt((end - start) + 1)
+    b = start + r.nextInt((end - start) + 1)
 
     poke(dut.io.in.imm, a)
+    a = ((a & 0x0700) >> 3) | (a & 0x001F)
+    poke(dut.io.in.rs1, b)
     poke(dut.io.ctrl.alu_op, 14)
-    result = a << 8
-    if (result > 32767) {result = result - 65536}
-    else if (result < -32768) {result = result + 65536}
+    result = (a << 8) | (b & 0x00FF)
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.alu_res, result)
   }
   poke(dut.io.ctrl.alu_src, 0)
@@ -238,11 +238,14 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
   poke(dut.io.ctrl.alu_src, 1)
   poke(dut.io.ctrl.ext_mode, 2)
   for (i <- 1 to testSize) {
-    a = r.nextInt(256)
+    a = start + r.nextInt((end - start) + 1)
+    b = start + r.nextInt((end - start) + 1)
 
     poke(dut.io.in.imm, a)
+    a = ((a & 0x0700) >> 3) | (a & 0x001F)
+    poke(dut.io.in.rs1, b)
     poke(dut.io.ctrl.alu_op, 15)
-    result = a
+    result = (b & 0xFF00) | (a & 0x00FF)
     expect(dut.io.out.alu_res, result)
   }
   poke(dut.io.ctrl.alu_src, 0)
@@ -260,8 +263,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.imm, b)
     poke(dut.io.ctrl.alu_op, 2)
     result = a+b
-    if (result > 32767) {result = result - 65536}
-    else if (result < -32768) {result = result + 65536}
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.alu_res, result)
   }
   poke(dut.io.ctrl.alu_src, 0)
@@ -279,8 +281,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.imm, b)
     poke(dut.io.ctrl.alu_op, 2)
     result = a+b
-    if (result > 32767) {result = result - 65536}
-    else if (result < -32768) {result = result + 65536}
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.alu_res, result)
   }
   poke(dut.io.ctrl.alu_src, 0)
@@ -296,8 +297,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs2, b)
     poke(dut.io.ctrl.alu_op, 2)
     result = a+b
-    if (result > 32767) {result = result - 65536}
-    else if (result < -32768) {result = result + 65536}
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.alu_res, result)
   }
 
@@ -311,20 +311,20 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs2, b)
     poke(dut.io.ctrl.alu_op, 2)
     result = a+b
-    if (result > 32767) {result = result - 65536}
-    else if (result < -32768) {result = result + 65536}
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.alu_res, result)
   }
 
-  // JMP
+  // JMPI
   poke(dut.io.ctrl.ext_mode, 5)
-  poke(dut.io.ctrl.jmp_mode, 1)
-  if (debug) {print("Testing JMP")}
+  poke(dut.io.ctrl.jmp_mode, 7)
+  if (debug) {print("Testing JMPI")}
   for (i <- 1 to testSize) {
     a = -1024 + r.nextInt((1023 - -1024) + 1)
 
     poke(dut.io.in.imm, a)
-    result = a << 1
+    result = a
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.jump_amt, result)
     expect(dut.io.out.jump, 1)
   }
@@ -343,7 +343,8 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs1, a)
     poke(dut.io.in.rs2, b)
     poke(dut.io.in.imm, c)
-    result = c << 1
+    result = c
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.jump_amt, result)
     expect(dut.io.out.jump, 1)
   }
@@ -352,7 +353,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
 
   // JLEO
   poke(dut.io.ctrl.ext_mode, 1)
-  poke(dut.io.ctrl.jmp_mode, 4)
+  poke(dut.io.ctrl.jmp_mode, 3)
   if (debug) {print("Testing JLEO")}
   for (i <- 1 to testSize) {
     b = start + r.nextInt((end - start) + 1)
@@ -362,7 +363,8 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs1, a)
     poke(dut.io.in.rs2, b)
     poke(dut.io.in.imm, c)
-    result = c << 1
+    result = c
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.jump_amt, result)
     expect(dut.io.out.jump, 1)
   }
@@ -374,13 +376,14 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
   step(1)
 
   poke(dut.io.ctrl.ext_mode, 1)
-  poke(dut.io.ctrl.jmp_mode, 5)
+  poke(dut.io.ctrl.jmp_mode, 4)
   if (debug) {print("Testing JCO")}
   for (i <- 1 to testSize) {
     c = -16 + r.nextInt((15 - -16) + 1)
 
     poke(dut.io.in.imm, c)
-    result = c << 1
+    result = c
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.jump_amt, result)
     expect(dut.io.out.jump, 1)
   }
@@ -389,7 +392,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
 
   // JEO
   poke(dut.io.ctrl.ext_mode, 1)
-  poke(dut.io.ctrl.jmp_mode, 3)
+  poke(dut.io.ctrl.jmp_mode, 5)
   if (debug) {print("Testing JEO")}
   for (i <- 1 to testSize) {
     a = start + r.nextInt((end - start) + 1)
@@ -398,7 +401,8 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
     poke(dut.io.in.rs1, a)
     poke(dut.io.in.rs2, a)
     poke(dut.io.in.imm, c)
-    result = c << 1
+    result = c
+    if (result < 0) {result = result + 65536}
     expect(dut.io.out.jump_amt, result)
     expect(dut.io.out.jump, 1)
   }
