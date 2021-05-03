@@ -25,6 +25,7 @@ run_assembler: src/test/resources/program.bin
 	echo "---BINARY FILE CREATED---"
 
 src/test/resources/program.bin:
+	mkdir -p src/test/resources
 	$(PY) lyng-assembler/lyng-assembler.py $(PROGRAM) src/test/resources/program.bin
 
 # Generate Verilog code
