@@ -24,7 +24,7 @@ class EXTester(dut: ExecuteTop) extends PeekPokeTester(dut) {
   var b = 0
   var c = 0
   var result = 0
-  var debug = true
+  var debug = false
 
   poke(dut.io.in.imm, 0)
   poke(dut.io.in.ex_forward, 0)
