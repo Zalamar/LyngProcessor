@@ -33,11 +33,12 @@ class EX_MESig extends Bundle {
     val ctrl = new ControlUnitSig
 
     val pc = UInt(16.W)
-    val jump = UInt(1.W)
-    val jump_amt = UInt(16.W)
     val alu_res = UInt(16.W)
     val rd = UInt(16.W)
     val rw_addr = UInt(3.W)
+    val gez = UInt(1.W)
+    val zero = UInt(1.W)
+    val carry_out = UInt(1.W)
 
 }
 
@@ -62,7 +63,7 @@ class LyngTop extends Module {
 
     val out_addr = "hFFFE".U
 
-    val instr_mem = Module(new Memory(16, 16))
+    val instr_mem = Module(new Memory(15, 16))
     val data_mem = Module(new Memory(16, 16))
 
     //Pipeline interstage register instantiation
@@ -100,13 +101,13 @@ class LyngTop extends Module {
     next_pc := pc.io.out + 1.U
     curr_pc := pc.io.out
     //Branch in ME Stage
-    when(ex_me.io.out.jump === 1.U) {
+    when(me.io.out.jump === 1.U) {
         switch(ex_me.io.out.ctrl.pc_src) {
             is("b00".U) {
                 next_pc := curr_pc + 1.U
             }
             is("b01".U) {
-                next_pc := me.io.out.jump + 1.U
+                next_pc := me.io.out.jump_amt + 1.U
             }
             is("b10".U) {
                 next_pc := me.io.out.call
@@ -181,9 +182,9 @@ class LyngTop extends Module {
     ex.io.in.ex_forward := ex_me.io.out.alu_res
     ex.io.in.me_forward := rw_value
     //EX Outputs -> EX/ME Inputs
-
-    ex_me.io.in.jump := ex.io.out.jump
-    ex_me.io.in.jump_amt := ex.io.out.jump_amt
+    ex_me.io.in.gez := ex.io.out.gez
+    ex_me.io.in.zero := ex.io.out.zero
+    ex_me.io.in.carry_out := ex.io.out.carry_out
     ex_me.io.in.alu_res := ex.io.out.alu_res
     ex_me.io.in.rd := ex.io.out.rd
     //ID/EX -> EX/ME Direct connections
@@ -199,8 +200,9 @@ class LyngTop extends Module {
       */
     me.io.ctrl := ex_me.io.out.ctrl
     //EX_ME outputs -> ME inputs
-    me.io.in.jump := ex_me.io.out.jump
-    me.io.in.jump_amt := ex_me.io.out.jump_amt
+    me.io.in.gez := ex_me.io.out.gez
+    me.io.in.zero := ex_me.io.out.zero
+    me.io.in.carry_out := ex_me.io.out.carry_out
     me.io.in.alu_res := ex_me.io.out.alu_res
     me.io.in.pc := ex_me.io.out.pc
     me.io.in.rd := ex_me.io.out.rd
@@ -219,7 +221,7 @@ class LyngTop extends Module {
     me_wb.io.in.ctrl := ex_me.io.out.ctrl
     me_wb.io.in.rw_addr := me.io.out.rw_addr
     me_wb.io.in.alu_res := me.io.out.alu_res
-    me_wb.io.in.jump := ex_me.io.out.jump //Directly from EX_ME
+    me_wb.io.in.jump := me.io.out.jump //Directly from EX_ME
 
     //Propagation
     me.io.in.prop_ME_ME := me_unit.io.prop_ME_ME
@@ -269,8 +271,8 @@ class LyngTop extends Module {
       (id_ex.io.out.ctrl.mem_write === 1.U & id_ex.io.out.ctrl.mem_data_src === 0.U) | //Rd used as data to write
       (id_ex.io.out.ctrl.stack_op === "b01".U) | //Rd used as new stack pointer
       (id_ex.io.out.ctrl.pc_src === "b10".U)
-    stall.io.ex_jump := ex.io.out.jump
-    stall.io.ex_me_jump := ex_me.io.out.jump
+    stall.io.ex_jump := me.io.out.jump
+    stall.io.ex_me_jump := me.io.out.jump_amt
     stall.io.instr_mem_read := 1.U
     stall.io.instr_mem_valid := instr_mem.io.valid
     stall.io.data_mem_read := 1.U //ex_me.io.out.ctrl.mem_read
