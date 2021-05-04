@@ -5,27 +5,28 @@ Lyng is 16-bit pipelined processor created as a part of the Advanced Computer Ar
 
 ### Run simulation
 1. Install Chisel ([instructions](https://www.imm.dtu.dk/~masca/chisel-book.pdf))
-2. Initialise assembler submodule.
+
+2. Write your assembly code (reference for Lyng ISA in assembler README) or use one of the provided examples.
+
+3. Compile and run in Scala simulator.
 
 ```
-$ git submodule init
-$ git submodule update
+$ make PROGRAM=<path> simulate
 ```
 
-3. Write your assembly code (reference for Lyng ISA in assembler README) or take one of the provided examples and place it in `program.lisa` file at top level of the repository.
+If the path is not provided, simulation will attempt to use `program.lisa` in top level of the repository.
 
-4. Compile and run in Scala simulator.
+4. Anything written to `0xFFFE` memory location will be printed into the terminal by simulator.
 
+### Get waveforms
 ```
-TODO: fill in command
+$ make PROGRAM=<path> vcd
 ```
-
-5. Anything written to `0xFFFE` memory location will be printed into the terminal by simulator.
 
 ### Synthetise Verilog
 
 ```
-sbt run
+$ sbt run
 ```
 
 ## Project Team

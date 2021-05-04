@@ -3,8 +3,6 @@ PY = python3
 PROGRAM = program.lisa
 .PHONY = vcd clean_vcd install_assembler run_assembler generate test simulate vcd src/test/resources/program.bin
 
-
-
 clean:
 	rm -f src/test/resources/program.bin
 	$(SBT) clean
@@ -12,13 +10,13 @@ clean:
 
 clean_vcd:
 	rm -rf test_run_dir
+	rm latest.vcd
 	echo "---CLEANED .vcd traces---"
 
 install_assembler:
 	git submodule init
 	git submodule update
 	echo "---ASSEMBLER INSTALLED---"
-
 
 run_assembler: src/test/resources/program.bin
 	echo "---BINARY FILE CREATED---"
@@ -34,7 +32,6 @@ generate:
 
 test:
 	$(SBT) test
-
 
 simulate: run_assembler
 	$(PY) lyng-assembler/lyng-assembler.py $(PROGRAM) src/test/resources/program.bin
