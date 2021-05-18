@@ -11,7 +11,7 @@ class MemoryStageIn extends Bundle {
         val jump_amt = Input(UInt(16.W))
         val alu_res = Input(UInt(16.W))
         val pc = Input(UInt(16.W))
-        val rd = Input(UInt(16.W))
+        val rd_in = Input(UInt(16.W))
         val rw_addr = Input(UInt(3.W))
         //propagation
         val prop_ME_ME = Input(UInt(1.W))
@@ -32,6 +32,7 @@ class MemoryStageOut extends Bundle {
     val data_out = Output(UInt(16.W))
     val alu_res = Output(UInt(16.W))
     val rw_addr = Output(UInt(3.W))
+    val rd_out = Output(UInt(16.W))
 
     //Outputs to PC
     val return_addr = Output(UInt(16.W))
@@ -54,7 +55,7 @@ class MemoryTop extends Module {
     //Internal Signals
     val sp_out = Wire(UInt(16.W))
 
-    val actual_rd = Mux(io.in.prop_ME_ME === 1.U, io.in.rw_value, io.in.rd)
+    val actual_rd = Mux(io.in.prop_ME_ME === 1.U, io.in.rw_value, io.in.rd_in)
 
     //Outputs to PC calc unit    
     io.out.call := actual_rd
@@ -65,6 +66,7 @@ class MemoryTop extends Module {
     io.out.alu_res := io.in.alu_res
     io.out.rw_addr := io.in.rw_addr
     io.out.data_out := io.in.data_out
+    io.out.rd_out := io.in.data_out
 
     sp_out := stack_pointer
 
