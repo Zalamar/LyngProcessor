@@ -203,7 +203,7 @@ class LyngTop extends Module {
     me.io.in.jump_amt := ex_me.io.out.jump_amt
     me.io.in.alu_res := ex_me.io.out.alu_res
     me.io.in.pc := ex_me.io.out.pc
-    me.io.in.rd := ex_me.io.out.rd
+    me.io.in.rd_in := ex_me.io.out.rd
     me.io.in.rw_addr := ex_me.io.out.rw_addr
     //Other
 
