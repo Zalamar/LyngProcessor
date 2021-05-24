@@ -9,9 +9,6 @@ package lyng.execute
 
 import chisel3._
 
-// TODO: Fix and put opcodes in shared file
-// TODO: Share SUB and ADD circuit since they never run at the same time
-
 class ALU extends Module {
   val io = IO(new Bundle {
     val alu_in1 = Input(SInt(16.W))
@@ -44,7 +41,7 @@ class ALU extends Module {
       carry := 0.U
     }
   } .elsewhen(io.alu_opcode === 3.U) { // ADC
-    when(carry===1.U) { // TODO: Share with SUB
+    when(carry===1.U) {
       s_alu_out := s_alu_in1 + s_alu_in2 + 1.S
     } .otherwise {
       s_alu_out := s_alu_in1 + s_alu_in2
@@ -54,7 +51,7 @@ class ALU extends Module {
     } .otherwise {
       carry := 0.U
     }
-  } .elsewhen(io.alu_opcode === 4.U) { // SUB/SUBI TODO: Share with ADD
+  } .elsewhen(io.alu_opcode === 4.U) { // SUB/SUBI
     s_alu_out := s_alu_in1 - s_alu_in2
     when(s_alu_in1 < s_alu_in2) {
       carry := 1.U
@@ -62,7 +59,7 @@ class ALU extends Module {
       carry := 0.U
     }
   } .elsewhen(io.alu_opcode === 5.U) { // SBB
-    when(carry===1.U) { // TODO: Share with SUB
+    when(carry===1.U) {
       s_alu_out := s_alu_in1 - s_alu_in2 - 1.S
     } .otherwise {
       s_alu_out := s_alu_in1 - s_alu_in2

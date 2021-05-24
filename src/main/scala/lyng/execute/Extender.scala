@@ -11,7 +11,6 @@ class Extender extends Module {
   })
 
   // See ALU_Control_Codes for opcodes
-  // TODO: Could this be improved by doing it in steps?
   io.immediate_out := Cat("b00000000000".U, io.immediate_in(4,0))
   when(io.ext_mode === 0.U) {
     io.immediate_out := Cat("b00000000000".U, io.immediate_in(4,0))
