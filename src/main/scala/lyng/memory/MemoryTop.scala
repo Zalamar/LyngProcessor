@@ -7,9 +7,8 @@ import chisel3.util._
 
 class MemoryStageIn extends Bundle {
         //Input from EX/ME
-        val gez = Input(UInt(1.W))
-        val zero = Input(UInt(1.W))
-        val carry_out = Input(UInt(1.W))
+        val jump = Input(UInt(1.W))
+        val jump_amt = Input(UInt(16.W))
         val alu_res = Input(UInt(16.W))
         val pc = Input(UInt(16.W))
         val rd = Input(UInt(16.W))
@@ -37,8 +36,7 @@ class MemoryStageOut extends Bundle {
     //Outputs to PC
     val return_addr = Output(UInt(16.W))
     val call = Output(UInt(16.W))
-    val jump = Output(UInt(1.W))
-    val jump_amt = Output(UInt(16.W))
+    val jump = Output(UInt(16.W))
 }
 
 class MemoryTop extends Module {
@@ -58,40 +56,15 @@ class MemoryTop extends Module {
 
     val actual_rd = Mux(io.in.prop_ME_ME === 1.U, io.in.rw_value, io.in.rd)
 
-    val jump = Wire(UInt(1.W))
     //Outputs to PC calc unit    
     io.out.call := actual_rd
-    jump := 0.U
-    switch(io.ctrl.jmp_mode) {
-      is(7.U) {
-        jump := 1.U
-      }
-      is(2.U) {
-        jump := io.in.gez
-      }
-      is(5.U) {
-        jump := io.in.zero
-      }
-      is(3.U) {
-        jump := io.in.gez | io.in.zero
-      }
-      is(4.U) {
-        jump := io.in.carry_out
-      }
-    }
-    io.out.jump := (io.in.pc.asSInt + jump.asSInt).asUInt
+    io.out.jump := (io.in.pc.asSInt + io.in.jump_amt.asSInt).asUInt
     io.out.return_addr := io.in.data_out
 
     //Other Signals
     io.out.alu_res := io.in.alu_res
     io.out.rw_addr := io.in.rw_addr
     io.out.data_out := io.in.data_out
-
-    when (io.out.jump === 0.U) {
-      io.out.jump_amt := 0.U
-    } .otherwise {
-      io.out.jump_amt := io.in.alu_res
-    }
 
     sp_out := stack_pointer
 

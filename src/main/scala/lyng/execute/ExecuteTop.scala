@@ -19,11 +19,10 @@ class ExecuteIn extends Bundle {
 
 class ExecuteOut extends Bundle {
     // Outputs
+    val jump = Output(UInt(1.W))
+    val jump_amt = Output(UInt(16.W))
     val alu_res = Output(UInt(16.W))
     val rd = Output(UInt(16.W))
-    val gez = Output(UInt(1.W))
-    val zero = Output(UInt(1.W))
-    val carry_out = Output(UInt(1.W))
 }
 
 
@@ -39,17 +38,11 @@ class ExecuteTop extends Module{
   val ALU = Module(new ALU())
   val extender = Module(new Extender())
 
-  val alu_src_output = Wire(Bits())
-
   ALU.io.alu_opcode := io.ctrl.alu_op
   io.out.alu_res := ALU.io.alu_out.asUInt()
 
   extender.io.immediate_in := io.in.imm
   extender.io.ext_mode := io.ctrl.ext_mode
-
-  io.out.zero := ALU.io.zero
-  io.out.gez := ALU.io.gez
-  io.out.carry_out := ALU.io.carry_out
 
   ALU.io.alu_in1 := io.in.rs1.asSInt()
   when(io.in.prop_rs1 === 1.U) {
@@ -59,11 +52,12 @@ class ExecuteTop extends Module{
   }
 
 
-  ALU.io.alu_in2 := alu_src_output.asSInt()
+  val prop_rs2_output = Wire(Bits())
+  prop_rs2_output := io.in.rs2
   when(io.in.prop_rs2 === 1.U) {
-    ALU.io.alu_in2 := io.in.me_forward.asSInt()
+    prop_rs2_output := io.in.me_forward
   }.elsewhen(io.in.prop_rs2 === 2.U) {
-    ALU.io.alu_in2 := io.in.ex_forward.asSInt()
+    prop_rs2_output := io.in.ex_forward
   }
 
   io.out.rd := io.in.rd
@@ -74,10 +68,35 @@ class ExecuteTop extends Module{
   }
 
   when (io.ctrl.alu_src === 0.U) {
-    alu_src_output := io.in.rs2
+    ALU.io.alu_in2 := prop_rs2_output.asSInt()
   } .otherwise {
-    alu_src_output := extender.io.immediate_out
+    ALU.io.alu_in2 := extender.io.immediate_out.asSInt()
   }
 
   io.out.alu_res := ALU.io.alu_out.asUInt()
+
+  io.out.jump := 0.U
+  switch(io.ctrl.jmp_mode) {
+    is(7.U) {
+      io.out.jump := 1.U
+    }
+    is(2.U) {
+      io.out.jump := ALU.io.gez
+    }
+    is(5.U) {
+      io.out.jump := ALU.io.zero
+    }
+    is(3.U) {
+      io.out.jump := !ALU.io.gez | ALU.io.zero
+    }
+    is(4.U) {
+      io.out.jump := ALU.io.carry_out
+    }
+  }
+
+  when (io.out.jump === 0.U) {
+    io.out.jump_amt := 0.U
+  } .otherwise {
+    io.out.jump_amt := extender.io.immediate_out
+  }
 }
